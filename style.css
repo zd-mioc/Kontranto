@@ -1,0 +1,35 @@
+body {
+    background-color: rgb(180, 243, 255);
+}
+img {
+    display: block;
+    margin-top: 90px;
+    margin-bottom: 8%;
+    margin-right: auto;
+    margin-left: auto;
+    height: 300px;
+    
+}
+a {
+    color: black;;
+    text-decoration: none;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    width: 35%;
+    text-align: center;
+    display: block;
+    margin: 70px auto;
+    background-color: white   ;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px grey;
+    font-family: 'Mulish', sans-serif;
+    font-size: 18;
+
+}
+a:hover{
+    color: white;
+    background-color: rgb(29, 218, 221)  ;
+    transition: 0.35s
+
+    
+}
