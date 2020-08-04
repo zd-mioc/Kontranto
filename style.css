@@ -1,5 +1,5 @@
 body {
-    background-color: rgb(180, 243, 255);
+    background-color: #b4f3ff;
 }
 img {
     display: block;
@@ -11,7 +11,7 @@ img {
     
 }
 a {
-    color: black;;
+    color: #000000;
     text-decoration: none;
     padding-top: 14px;
     padding-bottom: 14px;
@@ -19,17 +19,15 @@ a {
     text-align: center;
     display: block;
     margin: 70px auto;
-    background-color: white   ;
+    background-color:#fff;
     border-radius: 10px;
     box-shadow: 3px 3px 5px grey;
     font-family: 'Mulish', sans-serif;
-    font-size: 18;
-
+    font-size: 18px;
+    transition: 0.35s
 }
 a:hover{
-    color: white;
-    background-color: rgb(29, 218, 221)  ;
-    transition: 0.35s
-
-    
+    color:#fff;
+    background-color: #1ddadd;
+    transition: 0.35s  
 }
