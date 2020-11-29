@@ -76,12 +76,8 @@ WSGI_APPLICATION = 'Kontranto.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':'postgres',
-        'USER':'postgres',
-        'PASSWORD':'blablabla',
-        'HOST':'',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'kontranto_db',
     }
 }
 
@@ -110,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC+01:00'
+TIME_ZONE = 'Europe/Zagreb'
 
 USE_I18N = True
 

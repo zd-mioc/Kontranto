@@ -1,5 +1,5 @@
 from django.db import models
- 
+
 class Game(models.Model):
     game_id=models.CharField(max_length=200)
     white_player_id=models.CharField(max_length=200)

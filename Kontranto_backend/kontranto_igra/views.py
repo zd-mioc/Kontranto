@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 from django.http import HttpResponse
-from .services import funkcije
+import kontranto_igra.game_logic
 import json
 
 def index(request):
@@ -10,11 +10,14 @@ def index(request):
 def pravila(request):
     return render(request, "kontranto_igra/pravila.html")
 
+def show_board(request):
+    return render(request, "kontranto_igra/board.html")
+
 def new_game(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
-    player1Id = jsonFromBody['player1_id'] 
-    return HttpResponse('{"game_id": "'+funkcije.random_game_id()+'", "player1_color": "'+funkcije.BlackOrWhite('')+'"}', content_type="application/json")
+    player1Id = jsonFromBody['player1_id']
+    return HttpResponse('{"game_id": "'+game_logic.random_game_id()+'", "player1_color": "'+game_logic.BlackOrWhite('')+'"}', content_type="application/json")
 
 def join_game(request): #prima player1_color da zna vratiti pravu boju
     body_unicode = request.body.decode('utf-8')
@@ -22,7 +25,7 @@ def join_game(request): #prima player1_color da zna vratiti pravu boju
     gameId = jsonFromBody['game_id']
     player2Id = jsonFromBody['player2_id']
     player1_color = jsonFromBody['player1_color']
-    return HttpResponse('{"status": "'+funkcije.status(gameId)+'", "player2_color": "'+funkcije.BlackOrWhite(player1_color)+'"}', content_type="application/json")
+    return HttpResponse('{"status": "'+game_logic.status(gameId)+'", "player2_color": "'+game_logic.BlackOrWhite(player1_color)+'"}', content_type="application/json")
 
 def move(request):
     body_unicode = request.body.decode('utf-8')

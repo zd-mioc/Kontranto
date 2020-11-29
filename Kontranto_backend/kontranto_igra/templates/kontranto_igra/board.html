@@ -1,0 +1,33 @@
+{% load static %}
+<hmtl>
+<head>
+    <title>Kontranto</title>
+    <link rel="stylesheet" href="{% static "kontranto_igra/chessboard.css" %}">
+    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="board" style="width: 400px"></div>
+
+<script src="{% static "kontranto_igra/jquery-3.4.1.min.js" %}"></script>
+<script src="{% static "kontranto_igra/chessboard.js" %}"></script>
+<script>
+var config = {
+  numRows: 4,
+  numColumns: 4,
+  draggable: true,
+  dropOffBoard: 'snapback',
+  pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
+  position: {
+    b4: 'wK',
+    c4: 'wQ',
+    b1: 'bK',
+    c1: 'bQ',
+  }
+}
+var board = Chessboard('board', config)
+$(window).resize(board.resize)
+</script>
+
+</body>
+</html>
