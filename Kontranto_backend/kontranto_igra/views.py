@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 from django.http import HttpResponse
-import kontranto_igra.game_logic
+from kontranto_igra.game_logic import new_game_f, join_game_f, get_game_state
 import json
 
 def index(request):
@@ -16,22 +16,22 @@ def show_board(request):
 def new_game(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
-    player1Id = jsonFromBody['player1_id']
-    return HttpResponse('{"game_id": "'+game_logic.random_game_id()+'", "player1_color": "'+game_logic.BlackOrWhite('')+'"}', content_type="application/json")
+    player_1_id = jsonFromBody['player_1_id']
+    return HttpResponse(new_game_f(player_1_id), content_type="application/json")
 
-def join_game(request): #prima player1_color da zna vratiti pravu boju
+def join_game(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
-    gameId = jsonFromBody['game_id']
-    player2Id = jsonFromBody['player2_id']
-    player1_color = jsonFromBody['player1_color']
-    return HttpResponse('{"status": "'+game_logic.status(gameId)+'", "player2_color": "'+game_logic.BlackOrWhite(player1_color)+'"}', content_type="application/json")
+    game_id = jsonFromBody['game_id']
+    player_2_id = jsonFromBody['player_2_id']
+    player_1_color = jsonFromBody['player_1_color']
+    return HttpResponse(join_game_f(game_id, player_2_id, player_1_color), content_type="application/json")
 
 def move(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
-    gameId = jsonFromBody['game_id']
-    playerId = jsonFromBody['player_id']
+    game_id = jsonFromBody['game_id']
+    player_id = jsonFromBody['player_id']
     ntp = jsonFromBody['new_triangle_position']
     ncp = jsonFromBody['new_circle_position']
     return HttpResponse('{"status": "OK"}', content_type="application/json")
@@ -39,5 +39,5 @@ def move(request):
 def board_state(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
-    gameId = jsonFromBody['game_id']
-    return HttpResponse('{"last_move_timestamp": "<vrijeme_posljednjeg_odigranog_poteza>", "board": "<serijalizirano_stanje_ploce>", "white_score": "<bodovi_bijelog>", "black_score": "<bodovi_crnog>"}', content_type="application/json")
+    game_id = jsonFromBody['game_id']
+    return HttpResponse(get_game_state(game_id), content_type="application/json")
