@@ -24,8 +24,7 @@ def join_game(request):
     jsonFromBody = json.loads(body_unicode)
     game_id = jsonFromBody['game_id']
     player_2_id = jsonFromBody['player_2_id']
-    player_1_color = jsonFromBody['player_1_color']
-    return HttpResponse(join_game_f(game_id, player_2_id, player_1_color), content_type="application/json")
+    return HttpResponse(join_game_f(game_id, player_2_id), content_type="application/json")
 
 def move(request):
     body_unicode = request.body.decode('utf-8')
