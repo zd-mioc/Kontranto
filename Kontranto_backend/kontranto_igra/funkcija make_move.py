@@ -13,7 +13,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     except ObjectDoesNotExist:
         return json.dumps({"status": "error"})
         break
-    if game.game_state=="WAITING_FOR_SECOND_PLAYER" or game.game_state="OVER":
+    if game.game_state=="WAITING_FOR_SECOND_PLAYER" or game.game_state=="OVER":
         return json.dumps({"status": "error"})
         break
     player_colour=""
@@ -24,46 +24,46 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     else:
         return json.dumps({"status": "error"})
         break
-    if player_colour="white" and game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE":
+    if player_colour=="white" and game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE":
         return json.dumps({"status": "error"})
         break
-    elif player_colour="black" and game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE":
+    elif player_colour=="black" and game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         return json.dumps({"status": "error"})
         break
     
     # greska ako je igrac odigrao potez na ponisteno polje
     # potrebno je prevoditi oznake polja u pozicije u JSON matrici
-    if new_triangle_position="a":
+    if new_triangle_position=="a":
         triangle_position=[0, 0]
-    elif new_triangle_position="b":
+    elif new_triangle_position=="b":
         triangle_position=[0, 1]
-    elif new_triangle_position="c":
+    elif new_triangle_position=="c":
         triangle_position=[0, 2]
-    elif new_triangle_position="d":
+    elif new_triangle_position=="d":
         triangle_position=[0, 3]
-    elif new_triangle_position="e":
+    elif new_triangle_position=="e":
         triangle_position=[1, 0]
-    elif new_triangle_position="f":
+    elif new_triangle_position=="f":
         triangle_position=[1, 1]
-    elif new_triangle_position="g":
+    elif new_triangle_position=="g":
         triangle_position=[1, 2]
-    elif new_triangle_position="h":
+    elif new_triangle_position=="h":
         triangle_position=[1, 3]
-    elif new_triangle_position="i":
+    elif new_triangle_position=="i":
         triangle_position=[2, 0]
-    elif new_triangle_position="j":
+    elif new_triangle_position=="j":
         triangle_position=[2, 1]
-    elif new_triangle_position="k":
+    elif new_triangle_position=="k":
         triangle_position=[2, 2]
-    elif new_triangle_position="l":
+    elif new_triangle_position=="l":
         triangle_position=[2, 3]
-    elif new_triangle_position="m":
+    elif new_triangle_position=="m":
         triangle_position=[3, 0]
-    elif new_triangle_position="n":
+    elif new_triangle_position=="n":
         triangle_position=[3, 1]
-    elif new_triangle_position="o":
+    elif new_triangle_position=="o":
         triangle_position=[3, 2]
-    elif new_triangle_position="p":
+    elif new_triangle_position=="p":
         triangle_position=[3, 3]
     else:
         return json.dumps({"status": "error"})
@@ -71,37 +71,37 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     if game.board[triangle_position[0]][triangle_position[1]]=="X" or game.board[triangle_position[0]][triangle_position[1]]=="X,WC" or game.board[triangle_position[0]][triangle_position[1]]=="X,WT" or game.board[triangle_position[0]][triangle_position[1]]=="X,BC" or game.board[triangle_position[0]][triangle_position[1]]=="X,BC":
         return json.dumps({"status": "error"})
         break
-    if new_circle_position="a":
+    if new_circle_position=="a":
         circle_position=[0, 0]
-    elif new_circle_position="b":
+    elif new_circle_position=="b":
         circle_position=[0, 1]
-    elif new_circle_position="c":
+    elif new_circle_position=="c":
         circle_position=[0, 2]
-    elif new_circle_position="d":
+    elif new_circle_position=="d":
         circle_position=[0, 3]
-    elif new_circle_position="e":
+    elif new_circle_position=="e":
         circle_position=[1, 0]
-    elif new_circle_position="f":
+    elif new_circle_position=="f":
         circle_position=[1, 1]
-    elif new_circle_position="g":
+    elif new_circle_position=="g":
         circle_position=[1, 2]
-    elif new_circle_position="h":
+    elif new_circle_position=="h":
         circle_position=[1, 3]
-    elif new_circle_position="i":
+    elif new_circle_position=="i":
         circle_position=[2, 0]
-    elif new_circle_position="j":
+    elif new_circle_position=="j":
         circle_position=[2, 1]
-    elif new_circle_position="k":
+    elif new_circle_position=="k":
         circle_position=[2, 2]
-    elif new_circle_position="l":
+    elif new_circle_position=="l":
         circle_position=[2, 3]
-    elif new_circle_position="m":
+    elif new_circle_position=="m":
         circle_position=[3, 0]
-    elif new_circle_position="n":
+    elif new_circle_position=="n":
         circle_position=[3, 1]
-    elif new_circle_position="o":
+    elif new_circle_position=="o":
         circle_position=[3, 2]
-    elif new_circle_position="p":
+    elif new_circle_position=="p":
         circle_position=[3, 3]
     else:
         return json.dumps({"status": "error"})
@@ -117,80 +117,80 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         # dodao sam i za BLACK_PLAYER_MOVE i WHITE_PLAYER_MOVE jer bi trebalo i u tim slucajevima(?)
     max_range=[-1, 0, 1]
     move0=Move.objects.filter(color=player_colour).order_by('-move_timestamp')[0]
-    if move0.triangle_position="a":
+    if move0.triangle_position=="a":
         triangle0_position=[0, 0]
-    elif move0.triangle_position="b":
+    elif move0.triangle_position=="b":
         triangle0_position=[0, 1]
-    elif move0.triangle_position="c":
+    elif move0.triangle_position=="c":
         triangle0_position=[0, 2]
-    elif move0.triangle_position="d":
+    elif move0.triangle_position=="d":
         triangle0_position=[0, 3]
-    elif move0.triangle_position="e":
+    elif move0.triangle_position=="e":
         triangle0_position=[1, 0]
-    elif move0.triangle_position="f":
+    elif move0.triangle_position=="f":
         triangle0_position=[1, 1]
-    elif move0.triangle_position="g":
+    elif move0.triangle_position=="g":
         triangle0_position=[1, 2]
-    elif move0.triangle_position="h":
+    elif move0.triangle_position=="h":
         triangle0_position=[1, 3]
-    elif move0.triangle_position="i":
+    elif move0.triangle_position=="i":
         triangle0_position=[2, 0]
-    elif move0.triangle_position="j":
+    elif move0.triangle_position=="j":
         triangle0_position=[2, 1]
-    elif move0.triangle_position="k":
+    elif move0.triangle_position=="k":
         triangle0_position=[2, 2]
-    elif move0.triangle_position="l":
+    elif move0.triangle_position=="l":
         triangle0_position=[2, 3]
-    elif move0.triangle_position="m":
+    elif move0.triangle_position=="m":
         triangle0_position=[3, 0]
-    elif move0.triangle_position="n":
+    elif move0.triangle_position=="n":
         triangle0_position=[3, 1]
-    elif move0.triangle_position="o":
+    elif move0.triangle_position=="o":
         triangle0_position=[3, 2]
-    elif move0.triangle_position="p":
+    elif move0.triangle_position=="p":
         triangle0_position=[3, 3]
-    if move0.circle_position="a":
+    if move0.circle_position=="a":
         circle0_position=[0, 0]
-    elif move0.circle_position="b":
+    elif move0.circle_position=="b":
         circle0_position=[0, 1]
-    elif move0.circle_position="c":
+    elif move0.circle_position=="c":
         circle0_position=[0, 2]
-    elif move0.circle_position="d":
+    elif move0.circle_position=="d":
         circle0_position=[0, 3]
-    elif move0.circle_position="e":
+    elif move0.circle_position=="e":
         circle0_position=[1, 0]
-    elif move0.circle_position="f":
+    elif move0.circle_position=="f":
         circle0_position=[1, 1]
-    elif move0.circle_position="g":
+    elif move0.circle_position=="g":
         circle0_position=[1, 2]
-    elif move0.circle_position="h":
+    elif move0.circle_position=="h":
         circle0_position=[1, 3]
-    elif move0.circle_position="i":
+    elif move0.circle_position=="i":
         circle0_position=[2, 0]
-    elif move0.circle_position="j":
+    elif move0.circle_position=="j":
         circle0_position=[2, 1]
-    elif move0.circle_position="k":
+    elif move0.circle_position=="k":
         circle0_position=[2, 2]
-    elif move0.circle_position="l":
+    elif move0.circle_position=="l":
         circle0_position=[2, 3]
-    elif move0.circle_position="m":
+    elif move0.circle_position=="m":
         circle0_position=[3, 0]
-    elif move0.circle_position="n":
+    elif move0.circle_position=="n":
         circle0_position=[3, 1]
-    elif move0.circle_position="o":
+    elif move0.circle_position=="o":
         circle0_position=[3, 2]
-    elif move0.circle_position="p":
+    elif move0.circle_position=="p":
         circle0_position=[3, 3]
-    if game.game_state="WAITING_FOR_MOVE" or game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
+    if game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
         return json.dumps({"status": "error"})
         break
-    elif game.game_state="WAITING_FOR_MOVE" or game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
+    elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
         return json.dumps({"status": "error"})
         break
-    elif game.game_state="WAITING_FOR_MOVE" or game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
+    elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
         return json.dumps({"status": "error"})
         break
-    elif game.game_state="WAITING_FOR_MOVE" or game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
+    elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
         return json.dumps({"status": "error"})
         break
 
@@ -210,75 +210,75 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         else:
             game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE"
         game.save()
-    elif game.game_state="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state="WAITING_FOR_WHITE_PLAYER_MOVE":
+    elif game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         w_score=game.white_score
         b_score=game.black_score
         # dohvati 2 zadnja poteza iz tablice Move
             # zadnji bi trebao biti nas potez koji je upravo upisan, pa sam dohvatio samo onaj prije njega
         previous_move=Move.objects.filter(game_id=game.id).order_by('-move_timestamp')[1]
-        if previous_move.triangle_position="a":
+        if previous_move.triangle_position=="a":
             triangle2_position=[0, 0]
-        elif previous_move.triangle_position="b":
+        elif previous_move.triangle_position=="b":
             triangle2_position=[0, 1]
-        elif previous_move.triangle_position="c":
+        elif previous_move.triangle_position=="c":
             triangle2_position=[0, 2]
-        elif previous_move.triangle_position="d":
+        elif previous_move.triangle_position=="d":
             triangle2_position=[0, 3]
-        elif previous_move.triangle_position="e":
+        elif previous_move.triangle_position=="e":
             triangle2_position=[1, 0]
-        elif previous_move.triangle_position="f":
+        elif previous_move.triangle_position=="f":
             triangle2_position=[1, 1]
-        elif previous_move.triangle_position="g":
+        elif previous_move.triangle_position=="g":
             triangle2_position=[1, 2]
-        elif previous_move.triangle_position="h":
+        elif previous_move.triangle_position=="h":
             triangle2_position=[1, 3]
-        elif previous_move.triangle_position="i":
+        elif previous_move.triangle_position=="i":
             triangle2_position=[2, 0]
-        elif previous_move.triangle_position="j":
+        elif previous_move.triangle_position=="j":
             triangle2_position=[2, 1]
-        elif previous_move.triangle_position="k":
+        elif previous_move.triangle_position=="k":
             triangle2_position=[2, 2]
-        elif previous_move.triangle_position="l":
+        elif previous_move.triangle_position=="l":
             triangle2_position=[2, 3]
-        elif previous_move.triangle_position="m":
+        elif previous_move.triangle_position=="m":
             triangle2_position=[3, 0]
-        elif previous_move.triangle_position="n":
+        elif previous_move.triangle_position=="n":
             triangle2_position=[3, 1]
-        elif previous_move.triangle_position="o":
+        elif previous_move.triangle_position=="o":
             triangle2_position=[3, 2]
-        elif previous_move.triangle_position="p":
+        elif previous_move.triangle_position=="p":
             triangle2_position=[3, 3]
-        if previous_move.circle_position="a":
+        if previous_move.circle_position=="a":
             circle2_position=[0, 0]
-        elif previous_move.circle_position="b":
+        elif previous_move.circle_position=="b":
             circle2_position=[0, 1]
-        elif previous_move.circle_position="c":
+        elif previous_move.circle_position=="c":
             circle2_position=[0, 2]
-        elif previous_move.circle_position="d":
+        elif previous_move.circle_position=="d":
             circle2_position=[0, 3]
-        elif previous_move.circle_position="e":
+        elif previous_move.circle_position=="e":
             circle2_position=[1, 0]
-        elif previous_move.circle_position="f":
+        elif previous_move.circle_position=="f":
             circle2_position=[1, 1]
-        elif previous_move.circle_position="g":
+        elif previous_move.circle_position=="g":
             circle2_position=[1, 2]
-        elif previous_move.circle_position="h":
+        elif previous_move.circle_position=="h":
             circle2_position=[1, 3]
-        elif previous_move.circle_position="i":
+        elif previous_move.circle_position=="i":
             circle2_position=[2, 0]
-        elif previous_move.circle_position="j":
+        elif previous_move.circle_position=="j":
             circle2_position=[2, 1]
-        elif previous_move.circle_position="k":
+        elif previous_move.circle_position=="k":
             circle2_position=[2, 2]
-        elif previous_move.circle_position="l":
+        elif previous_move.circle_position=="l":
             circle2_position=[2, 3]
-        elif previous_move.circle_position="m":
+        elif previous_move.circle_position=="m":
             circle2_position=[3, 0]
-        elif previous_move.circle_position="n":
+        elif previous_move.circle_position=="n":
             circle2_position=[3, 1]
-        elif previous_move.circle_position="o":
+        elif previous_move.circle_position=="o":
             circle2_position=[3, 2]
-        elif previous_move.circle_position="p":
+        elif previous_move.circle_position=="p":
             circle2_position=[3, 3]
         # provjeri je li došlo do sudara
         collision=0
