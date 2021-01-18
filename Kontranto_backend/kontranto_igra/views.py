@@ -1,8 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpRequest
 from django.http import HttpResponse
-from kontranto_igra.game_logic import new_game_f, join_game_f, get_game_state
-from kontranto_igra.funkcija_make_move import make_move
+from kontranto_igra.game_logic import new_game_f, join_game_f, make_move, get_game_state
 import json
 
 def index(request):
