@@ -56,10 +56,8 @@ def join_game_f(game_id, player_id):
     return json.dumps(join_game_f_resp)
 
 def make_move (game_id, player_id, new_triangle_position, new_circle_position):
-    # dohvati zapis iz Game tablice pod ključem "game_id"
     try:
         g=Game.objects.get(game=game_id)
-    # greska ako zapis pod game_id ne postoji
     except ObjectDoesNotExist:
         return json.dumps({"status": "Greska: ne postoji igra s tim game_id-em."})
     if g.game_state=="WAITING_FOR_SECOND_PLAYER":
@@ -80,13 +78,13 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     # greska ako je igrac odigrao potez na ponisteno polje
     # potrebno je prevoditi oznake polja u pozicije u JSON matrici
     triangle_index=ord(new_triangle_position)-97
-    if triangle_index>16:
+    if triangle_index<0 or triangle_index>16:
         return json.dumps({"status": "Greska: odaberite polje na ploci od a do p."})
     triangle_position=[(triangle_index//4), (triangle_index%4)]
     if "X" in g.board[triangle_position[0]][triangle_position[1]]:
         return json.dumps({"status": "Greska: ne mozete se pomaknuti na ponisteno polje."})
     circle_index=ord(new_circle_position)-97
-    if circle_index>16:
+    if circle_index<0 or circle_index>16:
         return json.dumps({"status": "Greska: odaberite polje na ploci od a do p."})
     circle_position=[(circle_index//4), (circle_index%4)]
     if "X" in g.board[circle_position[0]][circle_position[1]]:
@@ -94,22 +92,26 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     if new_triangle_position==new_circle_position:
         return json.dumps({"status": "Greska: ne mozete pomaknuti obje figure na isto polje"})
 
-    # greska ako je stanje WAITING_FOR_MOVE a igrac je odigrao na nedohvativo polje
-        # dodao sam i za BLACK_PLAYER_MOVE i WHITE_PLAYER_MOVE jer bi trebalo i u tim slucajevima(?)
-    max_range=[-1, 0, 1]
-    move0=Move.objects.filter(color=player_color).order_by('-move_timestamp')[0]
-    triangle0_index=ord(move0.triangle_position)-97
-    triangle0_position=[(triangle0_index//4), (triangle0_index%4)]
-    circle0_index=ord(move0.circle_position)-97
-    circle0_position=[(circle0_index//4), (circle0_index%4)]
-    if g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-    elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-    elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-    elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
+    # greska ako je igrac odigrao na nedohvativo polje
+        # treba prvo provjeriti radi li se o pocetku igre jer su tada sva polja dostupna
+        # provjeravamo imaju li zadnja dva poteza odgovarajuci game_id, odnosno ima li prethodnih poteza u ovoj igri; ako ne onda je nova igra
+    m0=Move.objects.order_by('-move_timestamp')[0]
+    m00=Move.objects.order_by('-move_timestamp')[1]
+    if m0.game_id==g.id and m00.game_id==g.id:
+        max_range=[-1, 0, 1]
+        move0=Move.objects.filter(color=player_color).order_by('-move_timestamp')[0]    # dohvacamo prijasnji potez igraca ove boje kako bismo mu utvrdili trenutnu lokaciju
+        triangle0_index=ord(move0.triangle_position)-97
+        triangle0_position=[(triangle0_index//4), (triangle0_index%4)]
+        circle0_index=ord(move0.circle_position)-97
+        circle0_position=[(circle0_index//4), (circle0_index%4)]
+        if g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
+            return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
+        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
+            return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
+        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
+            return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
+        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
+            return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
 
     # trebalo bi uracunati i kraj igre u kojem nije moguce to uciniti pa se figura izbacuje
     # npr postoji jedno available polje i to je zauzeto drugom figurom iste boje
@@ -127,18 +129,17 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     elif g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         w_score=g.white_score
         b_score=g.black_score
-        # dohvati 2 zadnja poteza iz tablice Move
-            # zadnji bi trebao biti nas potez koji je upravo upisan, pa sam dohvatio samo onaj prije njega
+        # dohvacamo 2 zadnja poteza iz tablice Move
+            # zadnji bi trebao biti nas potez koji je upravo upisan, pa dohvacamo samo onaj prije njega
         previous_move=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
         triangle2_index=ord(previous_move.triangle_position)-97
         triangle2_position=[(triangle2_index//4), (triangle2_index%4)]
         circle2_index=ord(previous_move.circle_position)-97
         circle2_position=[(circle2_index//4), (circle2_index%4)]
-        # provjeri je li došlo do sudara
+        # provjeravamo je li doslo do sudara
         collision="none"
         if m.triangle_position==previous_move.triangle_position:
             collision="triangle_triangle2"
-            # ako je, dodijeli bod ovisno o oblicima
             w_score+=1
         elif m.circle_position==previous_move.circle_position:
             collision="circle_circle2"
@@ -149,7 +150,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         elif m.circle_position==previous_move.triangle_position:
             collision="circle_triangle2"
             b_score+=1
-        # promijeni pozicije igraca na ploci
+        # mijenjamo pozicije igraca na ploci
         if player_color=="white":
             if collision=="none":
                 g.board[triangle_position[0]][triangle_position[1]]="WT"
@@ -173,24 +174,24 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                 g.board[triangle_position[0]][triangle_position[1]]="WT"
                 g.board[circle2_position[0]][circle2_position[1]]="BC"
         else:
-            if collision==0:
+            if collision=="none":
                 g.board[triangle_position[0]][triangle_position[1]]="BT"
                 g.board[circle_position[0]][circle_position[1]]="BC"
                 g.board[triangle2_position[0]][triangle2_position[1]]="WT"
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
-            elif collision==1:
+            elif collision=="triangle_triangle2":
                 g.board[triangle_position[0]][triangle_position[1]]="X,WT,BT"
                 g.board[circle_position[0]][circle_position[1]]="BC"
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
-            elif collision==2:
+            elif collision=="circle_circle2":
                 g.board[circle_position[0]][circle_position[1]]="X,WC,BC"
                 g.board[triangle_position[0]][triangle_position[1]]="BT"
                 g.board[triangle2_position[0]][triangle2_position[1]]="WT"
-            elif collision==3:
+            elif collision=="triangle_circle2":
                 g.board[triangle_position[0]][triangle_position[1]]="X,WC,BT"
                 g.board[circle_position[0]][circle_position[1]]="BC"
                 g.board[triangle2_position[0]][triangle2_position[1]]="WT"
-            elif collision==4:
+            elif collision=="circle_triangle2":
                 g.board[circle_position[0]][circle_position[1]]="X,WT,BC"
                 g.board[triangle_position[0]][triangle_position[1]]="BT"
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
