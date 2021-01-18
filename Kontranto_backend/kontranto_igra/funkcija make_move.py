@@ -11,37 +11,39 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         game=Game.objects.get(game=game_id)
     # greska ako zapis pod game_id ne postoji
     except ObjectDoesNotExist:
-        return json.dumps({"status": "error"})
-    if game.game_state=="WAITING_FOR_SECOND_PLAYER" or game.game_state=="OVER":
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "Greska: ne postoji igra s tim game_id-em."})
+    if game.game_state=="WAITING_FOR_SECOND_PLAYER":
+        return json.dumps({"status": "Greska: nedostaje drugi igrac."})
+    elif game.game_state=="OVER":
+        return json.dumps({"status": "Greska: igra je gotova."})
     player_colour=""
     if player_id==game.white_player_id:
         player_colour="white"
     elif player_id==game.black_player_id:
         player_colour="black"
     else:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "player_id nije validan."})
     if player_colour=="white" and game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE":
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "vec ste odigrali potez; cekajte potez crnog igraca."})
     elif player_colour=="black" and game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "vec ste odigrali potez; cekajte potez bijelog igraca."})
     
     # greska ako je igrac odigrao potez na ponisteno polje
     # potrebno je prevoditi oznake polja u pozicije u JSON matrici
     triangle_index=ord(new_triangle_position)-97
     if triangle_index>112:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "odaberite polje na ploci od a do p."})
     triangle_position=[(triangle_index//4), (triangle_index%4)]
     if "X" in game.board[triangle_position[0]][triangle_position[1]]:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na ponisteno polje."})
     circle_index=ord(new_circle_position)-97
     if circle_index>112:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "odaberite polje na ploci od a do p."})
     circle_position=[(circle_index//4), (circle_index%4)]
     if "X" in game.board[circle_position[0]][circle_position[1]]:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na ponisteno polje."})
     if new_triangle_position==new_circle_position:
-        return('status: "error"')
+        return('status: "ne mozete pomaknuti obje figure na isto polje"')
 
     # greska ako je stanje WAITING_FOR_MOVE a igrac je odigrao na nedohvativo polje
         # dodao sam i za BLACK_PLAYER_MOVE i WHITE_PLAYER_MOVE jer bi trebalo i u tim slucajevima(?)
@@ -52,13 +54,13 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     circle0_index=ord(move0.circle_position)-97
     circle0_position=[(circle0_index//4), (circle0_index%4)]
     if game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na nedohvativo polje."})
     elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na nedohvativo polje."})
     elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na nedohvativo polje."})
     elif game.game_state=="WAITING_FOR_MOVE" or game.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or game.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
-        return json.dumps({"status": "error"})
+        return json.dumps({"status": "ne mozete se pomaknuti na nedohvativo polje."})
 
     # trebalo bi uracunati i kraj igre u kojem nije moguce to uciniti pa se figura izbacuje
     # npr postoji jedno available polje i to je zauzeto drugom figurom iste boje
