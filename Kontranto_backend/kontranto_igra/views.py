@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpRequest
 from django.http import HttpResponse
 from kontranto_igra.game_logic import new_game_f, join_game_f, get_game_state
+from kontranto_igra.funkcija_make_move import make_move
 import json
 
 def index(request):
@@ -31,9 +32,9 @@ def move(request):
     jsonFromBody = json.loads(body_unicode)
     game_id = jsonFromBody['game_id']
     player_id = jsonFromBody['player_id']
-    ntp = jsonFromBody['new_triangle_position']
-    ncp = jsonFromBody['new_circle_position']
-    return HttpResponse('{"status": "OK"}', content_type="application/json")
+    new_triangle_position = jsonFromBody['new_triangle_position']
+    new_circle_position = jsonFromBody['new_circle_position']
+    return HttpResponse(make_move(game_id, player_id, new_triangle_position, new_circle_position), content_type="application/json")
 
 def board_state(request):
     body_unicode = request.body.decode('utf-8')
