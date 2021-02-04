@@ -195,6 +195,20 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                 g.board[circle_position[0]][circle_position[1]]="X,WT,BC"
                 g.board[triangle_position[0]][triangle_position[1]]="BT"
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
+        m0=Move.objects.order_by('-move_timestamp')[2]
+        m00=Move.objects.order_by('-move_timestamp')[3]
+        triangle0_index=ord(m0.triangle_position)-97
+        triangle0_position=[(triangle0_index//4), (triangle0_index%4)]
+        circle0_index=ord(m0.circle_position)-97
+        circle0_position=[(circle0_index//4), (circle0_index%4)]
+        triangle00_index=ord(m00.triangle_position)-97
+        triangle00_position=[(triangle00_index//4), (triangle00_index%4)]
+        circle00_index=ord(m00.circle_position)-97
+        circle00_position=[(circle00_index//4), (circle00_index%4)]
+        g.board[triangle0_position[0]][triangle0_position[1]]=""
+        g.board[circle0_position[0]][circle0_position[1]]=""
+        g.board[triangle00_position[0]][triangle00_position[1]]=""
+        g.board[circle00_position[0]][circle00_position[1]]=""
         g.white_score=w_score
         g.black_score=b_score
         g.save()
