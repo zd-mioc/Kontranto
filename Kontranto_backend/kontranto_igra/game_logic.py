@@ -138,7 +138,13 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         circle2_position=[(circle2_index//4), (circle2_index%4)]
         # provjeravamo je li doslo do sudara
         collision="none"
-        if m.triangle_position==previous_move.triangle_position:
+        if m.triangle_position==previous_move.triangle_position and m.circle_position==previous_move.circle_position:
+            collision="double_collision_same"
+            w_score+=2
+        elif: m.triangle_position==previous_move.circle_position and m.circle_position==previous_move.triangle_position:
+            collision="double_collision_different"
+            b_score+=2
+        elif m.triangle_position==previous_move.triangle_position:
             collision="triangle_triangle2"
             w_score+=1
         elif m.circle_position==previous_move.circle_position:
@@ -177,7 +183,14 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
             g.board[circle00_position[0]][circle00_position[1]]="X"
         else:
             g.board[circle00_position[0]][circle00_position[1]]=""
-        if player_color=="white":
+        
+        if collision="double_collision_same":
+            g.board[triangle_position[0]][triangle_position[1]]="X,WT,BT"
+            g.board[circle_position[0]][circle_position[1]]="X,WC,BC"
+        elif collision="double_collision_different":
+            g.board[triangle_position[0]][triangle_position[1]]="X,WT,BC"
+            g.board[circle_position[0]][circle_position[1]]="X,WC,BT"
+        elif player_color=="white":
             if collision=="none":
                 g.board[triangle_position[0]][triangle_position[1]]="WT"
                 g.board[circle_position[0]][circle_position[1]]="WC"
