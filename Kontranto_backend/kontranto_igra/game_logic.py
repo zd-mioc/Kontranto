@@ -104,13 +104,13 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         triangle0_position=[(triangle0_index//4), (triangle0_index%4)]
         circle0_index=ord(move0.circle_position)-97
         circle0_position=[(circle0_index//4), (circle0_index%4)]
-        if g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[0]-triangle0_position[0] not in max_range:
+        if triangle_position[0]-triangle0_position[0] not in max_range:
             return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and triangle_position[1]-triangle0_position[1] not in max_range:
+        elif triangle_position[1]-triangle0_position[1] not in max_range:
             return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[0]-circle0_position[0] not in max_range:
+        elif circle_position[0]-circle0_position[0] not in max_range:
             return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
-        elif g.game_state=="WAITING_FOR_MOVE" or g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE" and circle_position[1]-circle0_position[1] not in max_range:
+        elif circle_position[1]-circle0_position[1] not in max_range:
             return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
 
     # trebalo bi uracunati i kraj igre u kojem nije moguce to uciniti pa se figura izbacuje
