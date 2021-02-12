@@ -21,7 +21,7 @@
 </head>
 <body>
 
-<div id="board", style="width: 600px; box-shadow: 3px 3px 5px grey; display: block; margin: auto; margin-top: 65px;"></div>
+<div id="board", style="width: 712px; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>
 
 <script src="{% static "kontranto_igra/jquery-3.4.1.min.js" %}"></script>
 <script src="{% static "kontranto_igra/chessboard.js" %}"></script>
@@ -44,8 +44,70 @@ var board = Chessboard('board', config)
 $(window).resize(board.resize)
 </script>
 
-<button class="button button1" onclick="window.alert(5 + 6)">Potvrdi potez</button>
-<div id='bQ' ondrop="window.alert(5 + 6)"></div>
+<button class = "button button1" onclick = "
+var positions = {
+  'wK':'x',
+  'wQ':'x',
+  'bK':'x',
+  'bQ':'x'
+}
+
+if (board.position().a1 !== undefined) {
+  positions[board.position().a1] = 'a1'
+  }
+if (board.position().a2 !== undefined) {
+  positions[board.position().a2] = 'a2'
+  }
+if (board.position().a3 !== undefined) {
+  positions[board.position().a3] = 'a3'
+  }
+if (board.position().a4 !== undefined) {
+  positions[board.position().a4] = 'a4'
+  }
+
+if (board.position().b1 !== undefined) {
+  positions[board.position().b1] = 'b1'
+  }
+if (board.position().b2 !== undefined) {
+  positions[board.position().b2] = 'b2'
+  }
+if (board.position().b3 !== undefined) {
+  positions[board.position().b3] = 'b3'
+  }
+if (board.position().b4 !== undefined) {
+  positions[board.position().b4] = 'b4'
+  }
+
+if (board.position().c1 !== undefined) {
+  positions[board.position().c1] = 'c1'
+  }
+if (board.position().c2 !== undefined) {
+  positions[board.position().c2] = 'c2'
+  }
+if (board.position().c3 !== undefined) {
+  positions[board.position().c3] = 'c3'
+  }
+if (board.position().c4 !== undefined) {
+  positions[board.position().c4] = 'c4'
+  }
+
+if (board.position().d1 !== undefined) {
+  positions[board.position().d1] = 'd1'
+  }
+if (board.position().d2 !== undefined) {
+  positions[board.position().d2] = 'd2'
+  }
+if (board.position().d3 !== undefined) {
+  positions[board.position().d3] = 'd3'
+  }
+if (board.position().d4 !== undefined) {
+  positions[board.position().d4] = 'd4'
+  }
+
+window.alert('Lipo')
+  ">Potvrdi potez</button>
+
+<div id='bQ' ondrop="window.alert('5 + 6')"></div>
 
 </body>
 </html>
