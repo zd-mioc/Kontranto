@@ -15,7 +15,7 @@
       font-size: 16px;
       margin-top: -350px;
       margin-left: 1250px;
-      cursor: pointer;
+      cursor: pointer
     }
     </style> 
 </head>
@@ -31,7 +31,6 @@ var config = {
   numColumns: 4,
   draggable: true,
   dropOffBoard: 'snapback',
-  onDrop: "window.alert(5 + 6)",
   pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
   position: {
     b4: 'wK',
@@ -45,6 +44,11 @@ $(window).resize(board.resize)
 </script>
 
 <button class = "button button1" onclick = "
+function SendNewPositions() {
+  var xhttp = new XMLHttpRequest();
+  // Treba dovrsiti poziv
+}
+
 var positions = {
   'wK':'x',
   'wQ':'x',
@@ -103,11 +107,11 @@ if (board.position().d3 !== undefined) {
 if (board.position().d4 !== undefined) {
   positions[board.position().d4] = 'd4'
   }
+// Ovdje ide AJAX poziv - klikom na button nove se pozicije salju na views
+window.alert('Gumb radi')
+  ">Potvrdi potez</button> <!-- -->
 
-window.alert('Lipo')
-  ">Potvrdi potez</button>
-
-<div id='bQ' ondrop="window.alert('5 + 6')"></div>
+<div id='bQ' ondrop="window.alert('5 + 6')"></div> <!-- Nista ovo -->
 
 </body>
 </html>
