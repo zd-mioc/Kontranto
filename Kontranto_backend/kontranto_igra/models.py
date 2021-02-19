@@ -16,3 +16,4 @@ class Move(models.Model):
     triangle_position=models.CharField(max_length=10)
     circle_position=models.CharField(max_length=10)
     move_timestamp=models.DateTimeField()
+    null_fields=models.JSONField()
