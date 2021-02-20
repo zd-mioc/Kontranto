@@ -74,7 +74,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         return json.dumps({"status": "Greska: vec ste odigrali potez; cekajte potez crnog igraca."})
     elif player_color=="black" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         return json.dumps({"status": "Greska: vec ste odigrali potez; cekajte potez bijelog igraca."})
-    
+
     triangle_position=new_triangle_position
     circle_position=new_circle_position
     if "X" in g.board[triangle_position[0]][triangle_position[1]]:
@@ -227,16 +227,33 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                 g.board[triangle_position[0]][triangle_position[1]]="BT"
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
 
+        # provjera ponovljenih pozicija
         m0=Move.objects.order_by('-move_timestamp')[1]
         m00=Move.objects.order_by('-move_timestamp')[2]
         if m0.game_id!=g.id or m00.game_id!=g.id:
             null_fields=[]
         else:
-            null_fields=m.null_fields
-            if collision=="double_collision_same" or collision=="double_collision_different" or collision=="triangle_triangle2" or collision=="triangle_circle2":
+            null_fields=m0.null_fields
+            if collision=="double_collision_same" or collision=="double_collision_different":
                 null_fields+=[chr(97+triangle_position[0]*4+triangle_position[1])]
-            if collision=="double_collision_same" or collision=="double_collision_different" or collision=="circle_circle2" or collision=="circle_triangle2":
                 null_fields+=[chr(97+circle_position[0]*4+circle_position[1])]
+            elif collision=="triangle_triangle2" or collision=="triangle_circle2":
+                null_fields+=[chr(97+triangle_position[0]*4+triangle_position[1])]
+            elif collision=="circle_circle2" or collision=="circle_triangle2":
+                null_fields+=[chr(97+circle_position[0]*4+circle_position[1])]
+            elif collision=="none" and Move.objects.order_by('-move_timestamp')[3].null_fields==Move.objects.order_by('-move_timestamp')[2].null_fields:
+                i=0
+                while Move.objects.order_by('-move_timestamp')[i].null_fields==Move.objects.order_by('-move_timestamp')[0].null_fields:
+                    if i!=1 and i%2==1:
+                        move_i_a=Move.objects.order_by('-move_timestamp')[i]
+                        move_i_b=Move.objects.order_by('-move_timestamp')[i-1]
+                        move_a=Move.objects.filter(color=move_i_a.color).order_by('-move_timestamp')[0]
+                        move_b=Move.objects.filter(color=move_i_b.color).order_by('-move_timestamp')[0]
+                        if move_i_a.triangle_position==move_a.triangle_position and move_i_a.circle_position==move_a.circle_position and move_i_b.triangle_position==move_b.triangle_position and move_i_b.circle_position==move_b.circle_position:
+                        # triba sad izbrisati te poteze nekako i uciniti da i drugi igrac igra ponovno
+                            g.game_state="WAITING_FOR_MOVE"
+                            return json.dumps({"status": "Greska: prijasnja pozicija ne smije biti ponovljena; oba igraca igraju ponovno"})
+                    i+=1
         m.null_fields=null_fields
         
         g.white_score=w_score
