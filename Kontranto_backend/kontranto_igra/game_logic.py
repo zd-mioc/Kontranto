@@ -55,6 +55,24 @@ def join_game_f(game_id, player_id):
     }
     return json.dumps(join_game_f_resp)
 
+# funkcija rotate potrebna unutar funkcije make_move pri provjeri razdvojene ploce
+def rotate(l):
+    for i in range(int(len(l)/2)):
+        if l[2*i]==1 and l[2*i+1]==1:
+            l[2*i+1]=2
+        elif l[2*i]==1 and l[2*i+1]==2:
+            l[2*i]=2
+        elif l[2*i]==2 and l[2*i+1]==2:
+            l[2*i+1]=1
+        elif l[2*i]==2 and l[2*i+1]==1:
+            l[2*i]=1
+        else:
+            x=l[2*i]
+            y=l[2*i+1]
+            x=3-x
+            l[2*i]=y
+            l[2*i+1]=x
+
 def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     try:
         g=Game.objects.get(game=game_id)
@@ -262,7 +280,56 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         if g.white_score==9 or g.black_score==9:
             g.game_state="OVER"
             g.save()
-        else:
+        
+        # provjera razdvojene ploce - bar jedno sredisnje polje mora biti ponisteno kako bi moglo doci do razdvajanja ploce
+        elif g.board[1][1]==("WX" or "BX") or g.board[1][2]==("WX" or "BX") or g.board[2][1]==("WX" or "BX") or g.board[2][2]==("WX" or "BX"):
+            # provjerava koliko je sredisnjih polja ponisteno; prema tome razvrstavamo razlicite mogucnosti
+            n=0
+            if g.board[1][1]==("WX" or "BX"):
+                n+=1
+            if g.board[1][2]==("WX" or "BX"):
+                n+=1
+            if g.board[2][1]==("WX" or "BX"):
+                n+=1
+            if g.board[2][2]==("WX" or "BX"):
+                n+=1
+            if n==1:
+                # postoji 1 obrazac razdvojene ploce s jednim ponistenim sredisnjim poljem; ima 4 rotacije
+                l=[0, 1, 1, 1, 1, 0]
+                for i in range(4):
+                    if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX"):
+                        # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                    rotate(l)
+            if n==2:
+                # postoje 3 obrasca razdvojene ploce s dva ponistena sredisnja polja; svaki ima 4 rotacije
+                for i in range(3):
+                    if i==0:
+                        l=[0, 1, 1, 1, 2, 1, 3, 1]
+                    elif i==1:
+                        l=[0, 1, 1, 1, 2, 1, 2, 0]
+                    elif i==2:
+                        l=[1, 0, 1, 1, 2, 1, 3, 1]
+                    for j in range(4):
+                        if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX") and g.board[l[6]][l[7]]==("WX" or "BX"):
+                            # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                        rotate(l)
+            if n==3:
+                # postoje 4 obrasca razdvojene ploce s tri ponistena sredisnja polja; svaki ima 4 rotacije
+                for i in range(4):
+                    if i==0:
+                        l=[0, 2, 1, 2, 1, 1, 2, 1, 3, 1]
+                    elif i==1:
+                        l=[0, 2, 1, 2, 1, 1, 2, 1, 2, 0]
+                    elif i==2:
+                        l=[1, 3, 1, 2, 1, 1, 2, 1, 2, 0]
+                    elif i==3:
+                        l=[1, 3, 1, 2, 1, 1, 2, 1, 3, 1]
+                    for j in range(4):
+                        if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX") and g.board[l[6]][l[7]]==("WX" or "BX") and g.board[l[8]][l[9]]==("WX" or "BX"):
+                            # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                        rotate(l)
+        
+        if g.game_state!="OVER":
             g.game_state="WAITING_FOR_MOVE"
             g.save()
 
