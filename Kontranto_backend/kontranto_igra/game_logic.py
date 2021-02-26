@@ -108,13 +108,15 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     try:
         m0=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[0]
         m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
-    except ObjectDoesNotExist:
+    except:
         pass
     else:
         max_range=[-1, 0, 1]
         move0=Move.objects.filter(color=player_color).order_by('-move_timestamp')[0]    # dohvacamo prijasnji potez igraca ove boje kako bismo mu utvrdili trenutnu lokaciju
-        triangle0_position=move0.triangle_position
-        circle0_position=move0.circle_position
+        s=move0.triangle_position
+        triangle0_position=[int(s[1]), int(s[4])]
+        s=move0.circle_position
+        circle0_position=[int(s[1]), int(s[4])]
         if triangle_position[0]-triangle0_position[0] not in max_range:
             return json.dumps({"status": "Greska: ne mozete se pomaknuti na nedohvativo polje."})
         elif triangle_position[1]-triangle0_position[1] not in max_range:
@@ -143,8 +145,10 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         # dohvacamo 2 zadnja poteza iz tablice Move
             # zadnji bi trebao biti nas potez koji je upravo upisan, pa dohvacamo samo onaj prije njega
         previous_move=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
-        triangle2_position=previous_move.triangle_position
-        circle2_position=previous_move.circle_position
+        s=previous_move.triangle_position
+        triangle2_position=[int(s[1]), int(s[4])]
+        s=previous_move.circle_position
+        circle2_position=[int(s[1]), int(s[4])]
         # provjeravamo je li doslo do sudara
         collision="none"
         if m.triangle_position==previous_move.triangle_position and m.circle_position==previous_move.circle_position:
@@ -166,36 +170,45 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
             collision="circle_triangle2"
             b_score+=1
         # mijenjamo pozicije igraca na ploci
-        m0=Move.objects.order_by('-move_timestamp')[2]
-        m00=Move.objects.order_by('-move_timestamp')[3]
-        triangle0_position=m0.triangle_position
-        circle0_position=m0.circle_position
-        triangle00_position=m00.triangle_position
-        circle00_position=m00.circle_position
-        if "WX" in g.board[triangle0_position[0]][triangle0_position[1]]:
-            g.board[triangle0_position[0]][triangle0_position[1]]="WX"
-        elif "BX" in g.board[triangle0_position[0]][triangle0_position[1]]:
-            g.board[triangle0_position[0]][triangle0_position[1]]="BX"
+        # ako ima prijasnjih poteza, moramo ih ukloniti iz ploce, s tim da ostavimo ponistena polja
+        try:
+            m0=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[2]
+            m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[3]
+        except:
+            pass
         else:
-            g.board[triangle0_position[0]][triangle0_position[1]]=""
-        if "WX" in g.board[circle0_position[0]][circle0_position[1]]:
-            g.board[circle0_position[0]][circle0_position[1]]="WX"
-        elif "BX" in g.board[circle0_position[0]][circle0_position[1]]:
-            g.board[circle0_position[0]][circle0_position[1]]="BX"
-        else:
-            g.board[circle0_position[0]][circle0_position[1]]=""
-        if "WX" in g.board[triangle00_position[0]][triangle00_position[1]]:
-            g.board[triangle00_position[0]][triangle00_position[1]]="WX"
-        elif "BX" in g.board[triangle00_position[0]][triangle00_position[1]]:
-            g.board[triangle00_position[0]][triangle00_position[1]]="BX"
-        else:
-            g.board[triangle00_position[0]][triangle00_position[1]]=""
-        if "WX" in g.board[circle00_position[0]][circle00_position[1]]:
-            g.board[circle00_position[0]][circle00_position[1]]="WX"
-        elif "BX" in g.board[circle00_position[0]][circle00_position[1]]:
-            g.board[circle00_position[0]][circle00_position[1]]="BX"
-        else:
-            g.board[circle00_position[0]][circle00_position[1]]=""
+            s=m0.triangle_position
+            triangle0_position=[int(s[1]), int(s[4])]
+            s=m0.circle_position
+            circle0_position=[int(s[1]), int(s[4])]
+            s=m00.triangle_position
+            triangle00_position=[int(s[1]), int(s[4])]
+            s=m00.circle_position
+            circle00_position=[int(s[1]), int(s[4])]
+            if "WX" in g.board[triangle0_position[0]][triangle0_position[1]]:
+                g.board[triangle0_position[0]][triangle0_position[1]]="WX"
+            elif "BX" in g.board[triangle0_position[0]][triangle0_position[1]]:
+                g.board[triangle0_position[0]][triangle0_position[1]]="BX"
+            else:
+                g.board[triangle0_position[0]][triangle0_position[1]]=""
+            if "WX" in g.board[circle0_position[0]][circle0_position[1]]:
+                g.board[circle0_position[0]][circle0_position[1]]="WX"
+            elif "BX" in g.board[circle0_position[0]][circle0_position[1]]:
+                g.board[circle0_position[0]][circle0_position[1]]="BX"
+            else:
+                g.board[circle0_position[0]][circle0_position[1]]=""
+            if "WX" in g.board[triangle00_position[0]][triangle00_position[1]]:
+                g.board[triangle00_position[0]][triangle00_position[1]]="WX"
+            elif "BX" in g.board[triangle00_position[0]][triangle00_position[1]]:
+                g.board[triangle00_position[0]][triangle00_position[1]]="BX"
+            else:
+                g.board[triangle00_position[0]][triangle00_position[1]]=""
+            if "WX" in g.board[circle00_position[0]][circle00_position[1]]:
+                g.board[circle00_position[0]][circle00_position[1]]="WX"
+            elif "BX" in g.board[circle00_position[0]][circle00_position[1]]:
+                g.board[circle00_position[0]][circle00_position[1]]="BX"
+            else:
+                g.board[circle00_position[0]][circle00_position[1]]=""
         
         if collision=="double_collision_same":
             g.board[triangle_position[0]][triangle_position[1]]="WX,WT,BT"
@@ -251,10 +264,10 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         # provjera ponovljenih pozicija
         try:
             m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[2]
-        except ObjectDoesNotExist:
+        except:
             null_fields=[]
         else:
-            null_fields=m0.null_fields
+            null_fields=m00.null_fields
             if collision=="double_collision_same" or collision=="double_collision_different":
                 null_fields+=[chr(97+triangle_position[0]*4+triangle_position[1])]
                 null_fields+=[chr(97+circle_position[0]*4+circle_position[1])]
@@ -291,7 +304,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
             n=0
             try:
                 m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[2]
-            except ObjectDoesNotExist:
+            except:
                 wt_sep=False
                 wc_sep=False
                 bt_sep=False
@@ -339,13 +352,13 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                     for j in range(4):
                         if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX") and g.board[l[6]][l[7]]==("WX" or "BX"):
                             # razdvojena ploca - kod koji ce se izvrsiti
-                            if wt_sep==False and "WT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                            if wt_sep==False and "WT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]):
                                 wt_sep=True
-                            if wc_sep==False and "WC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                            if wc_sep==False and "WC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]):
                                 wc_sep=True
-                            if bt_sep==False and "BT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                            if bt_sep==False and "BT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]):
                                 bt_sep=True
-                            if bc_sep==False and "BC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                            if bc_sep==False and "BC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]):
                                 bc_sep=True
                             if i==0 or i==1:
                                 if wt_sep==False and "WT" in g.board[h[0]][h[1]]:
@@ -424,7 +437,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
             g.game_state="WAITING_FOR_MOVE"
             g.save()
 
-        return json.dumps({"status": "OK"})
+    return json.dumps({"status": "OK"})
 
 def get_game_state(game_id):
     try:
