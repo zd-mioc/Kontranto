@@ -105,9 +105,12 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     # greska ako je igrac odigrao na nedohvativo polje
         # treba prvo provjeriti radi li se o pocetku igre jer su tada sva polja dostupna
         # provjeravamo imaju li zadnja dva poteza odgovarajuci game_id, odnosno ima li prethodnih poteza u ovoj igri; ako ne onda je nova igra
-    m0=Move.objects.order_by('-move_timestamp')[0]
-    m00=Move.objects.order_by('-move_timestamp')[1]
-    if m0.game_id==g.id and m00.game_id==g.id:
+    try:
+        m0=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[0]
+        m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
+    except ObjectDoesNotExist:
+        pass
+    else:
         max_range=[-1, 0, 1]
         move0=Move.objects.filter(color=player_color).order_by('-move_timestamp')[0]    # dohvacamo prijasnji potez igraca ove boje kako bismo mu utvrdili trenutnu lokaciju
         triangle0_position=move0.triangle_position
@@ -246,9 +249,9 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                 g.board[circle2_position[0]][circle2_position[1]]="WC"
 
         # provjera ponovljenih pozicija
-        m0=Move.objects.order_by('-move_timestamp')[1]
-        m00=Move.objects.order_by('-move_timestamp')[2]
-        if m0.game_id!=g.id or m00.game_id!=g.id:
+        try:
+            m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[2]
+        except ObjectDoesNotExist:
             null_fields=[]
         else:
             null_fields=m0.null_fields
@@ -270,6 +273,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                         if move_i_a.triangle_position==move_a.triangle_position and move_i_a.circle_position==move_a.circle_position and move_i_b.triangle_position==move_b.triangle_position and move_i_b.circle_position==move_b.circle_position:
                         # triba sad izbrisati te poteze nekako i uciniti da i drugi igrac igra ponovno
                             g.game_state="WAITING_FOR_MOVE"
+                            g.save()
                             return json.dumps({"status": "Greska: prijasnja pozicija ne smije biti ponovljena; oba igraca igraju ponovno"})
                     i+=1
         m.null_fields=null_fields
@@ -280,11 +284,23 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         if g.white_score==9 or g.black_score==9:
             g.game_state="OVER"
             g.save()
-        
-        # provjera razdvojene ploce - bar jedno sredisnje polje mora biti ponisteno kako bi moglo doci do razdvajanja ploce
+
+        # provjera razdvojene ploce
         elif g.board[1][1]==("WX" or "BX") or g.board[1][2]==("WX" or "BX") or g.board[2][1]==("WX" or "BX") or g.board[2][2]==("WX" or "BX"):
             # provjerava koliko je sredisnjih polja ponisteno; prema tome razvrstavamo razlicite mogucnosti
             n=0
+            try:
+                m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[2]
+            except ObjectDoesNotExist:
+                wt_sep=False
+                wc_sep=False
+                bt_sep=False
+                bc_sep=False
+            else:
+                wt_sep=g.locked["WT"]
+                wc_sep=g.locked["WC"]
+                bt_sep=g.locked["BT"]
+                bc_sep=g.locked["BC"]
             if g.board[1][1]==("WX" or "BX"):
                 n+=1
             if g.board[1][2]==("WX" or "BX"):
@@ -296,10 +312,20 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
             if n==1:
                 # postoji 1 obrazac razdvojene ploce s jednim ponistenim sredisnjim poljem; ima 4 rotacije
                 l=[0, 1, 1, 1, 1, 0]
+                h=[0, 0]
                 for i in range(4):
                     if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX"):
-                        # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                        # razdvojena ploca - kod koji ce se izvrsiti
+                        if wt_sep==False and "WT" in g.board[h[0]][h[1]]:
+                            wt_sep=True
+                        if wc_sep==False and "WC" in g.board[h[0]][h[1]]:
+                            wc_sep=True
+                        if bt_sep==False and "BT" in g.board[h[0]][h[1]]:
+                            bt_sep=True
+                        if bc_sep==False and "BC" in g.board[h[0]][h[1]]:
+                            bc_sep=True
                     rotate(l)
+                    rotate(h)
             if n==2:
                 # postoje 3 obrasca razdvojene ploce s dva ponistena sredisnja polja; svaki ima 4 rotacije
                 for i in range(3):
@@ -309,10 +335,38 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                         l=[0, 1, 1, 1, 2, 1, 2, 0]
                     elif i==2:
                         l=[1, 0, 1, 1, 2, 1, 3, 1]
+                    h=[0, 0, 1, 0, 2, 0, 3, 0]
                     for j in range(4):
                         if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX") and g.board[l[6]][l[7]]==("WX" or "BX"):
-                            # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                            # razdvojena ploca - kod koji ce se izvrsiti
+                            if wt_sep==False and "WT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                                wt_sep=True
+                            if wc_sep==False and "WC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                                wc_sep=True
+                            if bt_sep==False and "BT" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                                bt_sep=True
+                            if bc_sep==False and "BC" in (g.board[h[2]][h[3]] or g.board[h[4]][h[5]]:
+                                bc_sep=True
+                            if i==0 or i==1:
+                                if wt_sep==False and "WT" in g.board[h[0]][h[1]]:
+                                    wt_sep=True
+                                if wc_sep==False and "WC" in g.board[h[0]][h[1]]:
+                                    wc_sep=True
+                                if bt_sep==False and "BT" in g.board[h[0]][h[1]]:
+                                    bt_sep=True
+                                if bc_sep==False and "BC" in g.board[h[0]][h[1]]:
+                                    bc_sep=True
+                            if i==0 or i==2:
+                                if wt_sep==False and "WT" in g.board[h[6]][h[7]]:
+                                    wt_sep=True
+                                if wc_sep==False and "WC" in g.board[h[6]][h[7]]:
+                                    wc_sep=True
+                                if bt_sep==False and "BT" in g.board[h[6]][h[7]]:
+                                    bt_sep=True
+                                if bc_sep==False and "BC" in g.board[h[6]][h[7]]:
+                                    bc_sep=True
                         rotate(l)
+                        rotate(h)
             if n==3:
                 # postoje 4 obrasca razdvojene ploce s tri ponistena sredisnja polja; svaki ima 4 rotacije
                 for i in range(4):
@@ -324,16 +378,53 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                         l=[1, 3, 1, 2, 1, 1, 2, 1, 2, 0]
                     elif i==3:
                         l=[1, 3, 1, 2, 1, 1, 2, 1, 3, 1]
+                    h=[0, 0, 0, 1, 0, 2, 0, 3, 1, 0, 2, 0, 3, 0]
                     for j in range(4):
                         if g.board[l[0]][l[1]]==("WX" or "BX") and g.board[l[2]][l[3]]==("WX" or "BX") and g.board[l[4]][l[5]]==("WX" or "BX") and g.board[l[6]][l[7]]==("WX" or "BX") and g.board[l[8]][l[9]]==("WX" or "BX"):
-                            # razdvojena ploca - treba upisati kod koji ce se izvrsiti
+                            # razdvojena ploca - kod koji ce se izvrsiti
+                            if wt_sep==False and "WT" in (g.board[h[0]][h[1]] or g.board[h[2]][h[3]] or g.board[h[4]][h[5]] or g.board[h[8]][h[9]] or g.board[h[10]][h[11]]):
+                                wt_sep=True
+                            if wc_sep==False and "WC" in (g.board[h[0]][h[1]] or g.board[h[2]][h[3]] or g.board[h[4]][h[5]] or g.board[h[8]][h[9]] or g.board[h[10]][h[11]]):
+                                wc_sep=True
+                            if bt_sep==False and "BT" in (g.board[h[0]][h[1]] or g.board[h[2]][h[3]] or g.board[h[4]][h[5]] or g.board[h[8]][h[9]] or g.board[h[10]][h[11]]):
+                                bt_sep=True
+                            if bc_sep==False and "BC" in (g.board[h[0]][h[1]] or g.board[h[2]][h[3]] or g.board[h[4]][h[5]] or g.board[h[8]][h[9]] or g.board[h[10]][h[11]]):
+                                bc_sep=True
+                            if i==0 or i==3:
+                                if wt_sep==False and "WT" in g.board[h[12]][h[13]]:
+                                    wt_sep=True
+                                if wc_sep==False and "WC" in g.board[h[12]][h[13]]:
+                                    wc_sep=True
+                                if bt_sep==False and "BT" in g.board[h[12]][h[13]]:
+                                    bt_sep=True
+                                if bc_sep==False and "BC" in g.board[h[12]][h[13]]:
+                                    bc_sep=True
+                            if i==2 or i==3:
+                                if wt_sep==False and "WT" in g.board[h[6]][h[7]]:
+                                    wt_sep=True
+                                if wc_sep==False and "WC" in g.board[h[6]][h[7]]:
+                                    wc_sep=True
+                                if bt_sep==False and "BT" in g.board[h[6]][h[7]]:
+                                    bt_sep=True
+                                if bc_sep==False and "BC" in g.board[h[6]][h[7]]:
+                                    bc_sep=True
                         rotate(l)
-        
+                        rotate(h)
+            if (wt_sep==True and wc_sep==True) or (bt_sep==True and bc_sep==True):
+                g.game_state="OVER"
+                g.save()
+            else:
+                g.locked["WT"]=wt_sep
+                g.locked["WC"]=wc_sep
+                g.locked["BT"]=bt_sep
+                g.locked["BC"]=bc_sep
+                g.save()
+
         if g.game_state!="OVER":
             g.game_state="WAITING_FOR_MOVE"
             g.save()
 
-    return json.dumps({"status": "OK"})
+        return json.dumps({"status": "OK"})
 
 def get_game_state(game_id):
     try:
