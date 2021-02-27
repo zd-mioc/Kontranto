@@ -847,10 +847,10 @@
         alpha.push(columnIdentifier(i))
       }
       var row = config.numRows
-      if (orientation === 'black') {
-        alpha.reverse()
-        row = 1
-      }
+      // if (orientation === 'black') {
+      //   alpha.reverse()
+      //   row = 1
+      // }
 
       var squareColor = 'white'
       for (var i = 0; i < config.numRows; i++) {
@@ -866,8 +866,8 @@
 
           if (config.showNotation) {
             // alpha notation
-            if ((orientation === 'white' && row === 1) ||
-                (orientation === 'black' && row === config.numRows)) {
+            if ((orientation === 'white' && row === 1) || 
+            (orientation === 'black' && row === 1)) {
               html += '<div class="{notation} {alpha}">' + alpha[j] + '</div>'
             }
 
@@ -885,11 +885,11 @@
 
         squareColor = (squareColor === 'white') ? 'black' : 'white'
 
-        if (orientation === 'white') {
-          row = row - 1
-        } else {
-          row = row + 1
-        }
+        // if (orientation === 'white') {
+        row = row - 1
+        // } else {
+        //   row = row + 1
+        // }
       }
 
       return interpolateTemplate(html, CSS)
@@ -1165,14 +1165,18 @@
       drawPositionInstant()
 
       if (config.sparePieces) {
-        if (currentOrientation === 'white') {
-          $sparePiecesTop.html(buildSparePiecesHTML('black'))
-          $sparePiecesBottom.html(buildSparePiecesHTML('white'))
-        } else {
-          $sparePiecesTop.html(buildSparePiecesHTML('white'))
-          $sparePiecesBottom.html(buildSparePiecesHTML('black'))
-        }
+        $sparePiecesTop.html(buildSparePiecesHTML('black'))
+        $sparePiecesBottom.html(buildSparePiecesHTML('white'))
       }
+      // if (config.sparePieces) {
+      //   if (currentOrientation === 'white') {
+      //     $sparePiecesTop.html(buildSparePiecesHTML('black'))
+      //     $sparePiecesBottom.html(buildSparePiecesHTML('white'))
+      //   } else {
+      //     $sparePiecesTop.html(buildSparePiecesHTML('white'))
+      //     $sparePiecesBottom.html(buildSparePiecesHTML('black'))
+      //   }
+      // }
     }
 
     function setCurrentPosition (position) {
