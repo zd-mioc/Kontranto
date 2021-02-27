@@ -9,7 +9,7 @@ class Game(models.Model):
     black_score=models.IntegerField()
     board=models.JSONField()
     game_state=models.CharField(max_length=200)
-    locked=models.JSONField()
+    # locked=models.JSONField()
 
 class Move(models.Model):
     game=models.ForeignKey(Game, on_delete=models.CASCADE)
@@ -17,4 +17,4 @@ class Move(models.Model):
     triangle_position=models.CharField(max_length=10)
     circle_position=models.CharField(max_length=10)
     move_timestamp=models.DateTimeField()
-    null_fields=models.JSONField()
+    # null_fields=models.JSONField()
