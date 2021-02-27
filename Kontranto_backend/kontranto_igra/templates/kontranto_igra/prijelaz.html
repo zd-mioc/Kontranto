@@ -1,0 +1,91 @@
+{% load static %}
+<html>
+    <head>
+        <title>Kontranto</title>
+        <link rel="stylesheet" href="{% static "kontranto_igra/style.css" %}">
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <div class = "okvir">
+            <form id=form1 name=form1 action="/show_board" method="post">
+                {% csrf_token %}
+                <label for="Nova igra">Nova igra</label><br><br>
+                <input type="hidden" name="game_id" value="to_be_set">
+                <input type="text" name="player_id" placeholder="Username">
+                <button name=button1 type="submit">Kreiraj igru</button>
+            </form>
+        </div>
+        
+        <div class = "okvir">
+            <form id=form2 name=form2 action="/show_board" method="post">
+                {% csrf_token %}
+                <label for="Pridruži se igri">Pridruži se igri</label><br><br>
+                <input type="text" name="game_id" placeholder="Game id">
+                <input type="text" name="player_id" placeholder="Username">
+                <button name=button2 type="submit">Pridruži se igri</button>
+            </form>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                $("#form1").on('submit',function(e){
+                    e.preventDefault();
+                    var form = this;
+
+                    csrf = $(this).find("input[name=csrfmiddlewaretoken]").val();
+                    game_id = $(this).find("input[name=game_id]").val();
+                    player_id =  $(this).find("input[name=player_id]").val();
+                    $.ajax({
+                        type:"POST",
+                        url:"http://127.0.0.1:8000/new_game",
+                        contentType: "application/json; charset=utf-8",
+                        headers:{"X-CSRFTOKEN":csrf},
+                        dataType: "json",
+                        processData: false,
+                        data: '{"player_id": "'+player_id+'"}',
+                        success: function(data){
+                            console.log("proslo")
+                            form.submit();
+                        },
+                        error: function(){ // A function to be called if the request fails.
+                            console.log("nije proslo");
+                        }
+                            
+                    })
+                })
+            })
+        </script>
+        
+        <script>
+            $(document).ready(function() {
+                $("#form2").on('submit',function(e){
+                    e.preventDefault();
+                    var form = this;
+
+                    csrf = $(this).find("input[name=csrfmiddlewaretoken]").val();
+                    game_id = $(this).find("input[name=game_id]").val();
+                    player_id =  $(this).find("input[name=player_id]").val();
+
+                    $.ajax({
+                        type:"POST",
+                        url:"http://127.0.0.1:8000/join_game",
+                        contentType: "application/json; charset=utf-8",
+                        headers:{"X-CSRFTOKEN":csrf},
+                        dataType: "json",
+                        processData: false,
+                        data: '{"game_id": "'+game_id+'","player_id": "'+player_id+'"}',
+                        success: function(data){ 
+                            form.submit();
+                        },
+                        error: function(){ // A function to be called if the request fails.
+                            console.log("nije proslo");
+                        }
+                            
+                    })
+                })
+            })
+        </script>
+    </body>
+</html>
