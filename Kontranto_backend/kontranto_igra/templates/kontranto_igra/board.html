@@ -1,117 +1,302 @@
 {% load static %}
-<hmtl>
+<html>
 <head>
     <title>Kontranto</title>
     <link rel="stylesheet" href="{% static "kontranto_igra/chessboard.css" %}">
     <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
     <style>
-    .button {
+    .button1 {
+      position:absolute;
       border: none;
       color: black;
       padding: 15px 32px;
       text-align: center;
       text-decoration: none;
-      display: div;
-      font-size: 16px;
-      margin-top: -350px;
-      margin-left: 1250px;
+      font-size: 30px;
+      right: 7%;
+      top:50%;
+      transform: translate(0, -50%);
       cursor: pointer
+    }
+    .gamedata{
+      position:absolute;
+      top:50%;
+      transform:translate(0,-50%)
     }
     </style> 
 </head>
+
 <body>
 
-<div id="board", style="width: 712px; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>
+  <script>
+
+    var dict = {
+      'wK':'x',
+      'wQ':'x',
+      'bK':'x',
+      'bQ':'x'
+    }
+  
+    var status = '{{status}}';
+    $("#game_status").text(status);
+    var game_id = '{{game_id}}';
+    var my_id = '{{my_id}}';
+    var my_color = '{{my_color}}';
+    if (my_color === "white") {
+      var opponent_color = "black"
+    }
+    else {
+      var opponent_color = "white"
+    }
+    var csrf = '{{ csrf }}';
+
+
+    var dict = {
+      'wK':'x',
+      'wQ':'x',
+      'bK':'x',
+      'bQ':'x'
+    }
+
+// <div class="button2">
+// <button id = "test" name = "test">Test</button>
+// </div>
+
+// $('#test').on('click', $('#a8-25fa-4f5d-ccb7-cae9-67b7-9fdf-1274-035d').attr("class", "square-55d63 black-3c85d square-a8"))
+
+    var opponent_id = ""
+
+    $(document).ready(function() {
+      // console.log($("#button1"))
+      // console.log($('#' + squareElsIds['a3']))
+      if (my_color === "black") {
+        board.flip()
+      }
+      var provjera = setInterval(myTimer, 3000);
+      function myTimer() {
+        positions=[
+        [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
+        [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
+        [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
+        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
+        ]
+        var i;
+
+        for (i=3; i>-1; i--) {
+          if (positions[i].indexOf('wK') !== -1) {
+            dict['wK'] = [i, positions[i].indexOf('wK')]
+          }
+          if (positions[i].indexOf('wQ') !== -1) {
+            dict['wQ'] = [i, positions[i].indexOf('wQ')]
+          }
+          if (positions[i].indexOf('bK') !== -1) {
+            dict['bK'] = [i, positions[i].indexOf('bK')]
+          }
+          if (positions[i].indexOf('bQ') !== -1) {
+            dict['bQ'] = [i, positions[i].indexOf('bQ')]
+          }
+        }
+        
+        if (my_color === "white") {
+          var ntp = dict['wQ']
+          var ncp = dict['wK']
+        }
+        else {
+          var ntp = dict['bQ']
+          var ncp = dict['bK']
+        }
+        $.ajax({
+          type:"POST",
+          url:"http://127.0.0.1:8000/game_state",
+          contentType: "application/json; charset=utf-8",
+          headers:{"X-CSRFTOKEN":csrf},
+          dataType: "json",
+          processData: false,
+          data: '{"game_id": "'+game_id+'", "my_color": "'+my_color+'"}',
+          success: function(data){
+              opponent_id = data["opponent_id"];
+              status = data["game_state"];
+              $("#game_status").text(status);
+              if (status === "WAITING_FOR_MOVE") { //dohvacanje protivnikovog poteza
+                $.ajax({
+                  type:"POST",
+                  url:"http://127.0.0.1:8000/get_move",
+                  contentType: "application/json; charset=utf-8",
+                  headers:{"X-CSRFTOKEN":csrf},
+                  dataType: "json",
+                  processData: false,
+                  data: '{"game_id": "'+game_id+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
+                  success: function(data){
+                    console.log("proslo");
+                    var otp = data["new_triangle_position"]
+                    var ocp = data["new_circle_position"]
+                    var ntp = data["ntp"]
+                    var ncp = data["ncp"]
+                    var board_state = {}
+                    if (my_color === "white") {
+                      board_state[otp] = "bQ"
+                      board_state[ocp] = "bK"
+                      board_state[ntp] = "wQ"
+                      board_state[ncp] = "wK"
+                    }
+                    else {
+                      board_state[otp] = "wQ"
+                      board_state[ocp] = "wK"
+                      board_state[ntp] = "bQ"
+                      board_state[ncp] = "bK"
+                    }
+                    board.position(board_state)
+                    // var move_t = data["otp"] + "-" + data["new_triangle_position"]
+                    // var move_c = data["ocp"] + "-" + data["new_circle_position"]
+                    // board.move(move_t)
+                    // board.move(move_c)
+                	},
+                  error: function(){
+                    console.log("nije proslo");
+                  }
+                })
+                
+              }
+              // $.ajax({
+              //   type:"POST",
+              //   url:"http://127.0.0.1:8000/update_info",
+              //   contentType: "application/json; charset=utf-8",
+              //   headers:{"X-CSRFTOKEN":csrf},
+              //   dataType: "json",
+              //   processData: false,
+              //   data: '{"status": "'+status+'", "game_id": "'+game_id+'", "my_id": "'+my_id+'", "opponent_id": "'+opponent_id+'", "my_color": "'+my_color+'"}',
+              //   success: function(data){ 
+              //       //form.submit();
+              //       opponent_id = data["opponent_id"];
+              //       console.log(opponent_id);
+              //   },
+              //   error: function(){ // A function to be called if the request fails.
+              //       console.log("nije proslo");
+              //   }  
+              // })
+          },
+          error: function(){ // A function to be called if the request fails.
+              console.log("nije proslo");
+          }
+                  
+        })
+      }
+      $("#button1").on('click',function(e){
+        csrf = $("input[name=csrfmiddlewaretoken]").val();   
+        positions=[
+        [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
+        [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
+        [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
+        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
+        ]
+        var i;
+
+        for (i=3; i>-1; i--) {
+          if (positions[i].indexOf('wK') !== -1) {
+            dict['wK'] = [i, positions[i].indexOf('wK')]
+          }
+          if (positions[i].indexOf('wQ') !== -1) {
+            dict['wQ'] = [i, positions[i].indexOf('wQ')]
+          }
+          if (positions[i].indexOf('bK') !== -1) {
+            dict['bK'] = [i, positions[i].indexOf('bK')]
+          }
+          if (positions[i].indexOf('bQ') !== -1) {
+            dict['bQ'] = [i, positions[i].indexOf('bQ')]
+          }
+        }
+        
+        if (my_color === "white") {
+          var ntp = dict['wQ']
+          var ncp = dict['wK']
+        }
+        else {
+          var ntp = dict['bQ']
+          var ncp = dict['bK']
+        }
+
+        $.ajax({
+          type:"POST",
+          url:"http://127.0.0.1:8000/move",
+          contentType: "application/json; charset=utf-8",
+          headers:{"X-CSRFTOKEN":csrf},
+          dataType: "json",
+          processData: false,
+          data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": ['+ntp[0]+', '+ntp[1]+'], "new_circle_position": ['+ncp[0]+', '+ncp[1]+']}',
+          success: function(data){ 
+            console.log(data)
+            if (data["status"] !== "OK") {
+              if (data["triangle0_position"] !=="X") {
+                board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
+              }
+              if (data["circle0_position"] !=="X") {
+                board.move(data["new_circle_position"] + "-" + data["circle0_position"])
+              }
+            }
+          },
+          error: function(){ // A function to be called if the request fails.
+              console.log("nije proslo");
+          }
+                  
+        })
+      })
+    })
+  </script>
+
+
+<div class = "button1">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
+    <button id="button1" name="Potvrdi potez" type="submit">Potvrdi potez</button>
+</div>
+
+<!-- IZMJENE -->
+
+
+<div class="gamedata">
+  status je <span id="game_status"></span> <br>
+  game_id je {{game_id}} <br>
+  my_id je {{my_id}} <br>
+  opponent_id je {{opponent_id}} <br>
+  my_color je {{my_color}} <br>  
+</div>
+
+<div id="board", style="width: 46.6%; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>
 
 <script src="{% static "kontranto_igra/jquery-3.4.1.min.js" %}"></script>
 <script src="{% static "kontranto_igra/chessboard.js" %}"></script>
 <script>
-var config = {
-  numRows: 4,
-  numColumns: 4,
-  draggable: true,
-  dropOffBoard: 'snapback',
-  pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
-  position: {
-    b4: 'wK',
-    c4: 'wQ',
-    b1: 'bK',
-    c1: 'bQ',
+  function onDragStart (source, piece, position, orientation) {
+    if ((orientation === 'white' && piece.search(/^w/) === -1) ||
+    (orientation === 'black' && piece.search(/^b/) === -1)) {
+      return false
+    }
   }
-}
-var board = Chessboard('board', config)
-$(window).resize(board.resize)
+  var config = {    
+    numRows: 4,
+    numColumns: 4,
+    draggable: true,
+    dropOffBoard: 'snapback',
+    onDragStart: onDragStart,
+    pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
+    position: {
+      b4: 'wK',
+      c4: 'wQ',
+      b1: 'bK',
+      c1: 'bQ'
+    }
+  }
+  var board = Chessboard('board', config)
+  $(window).resize(board.resize)
 </script>
 
-<button class = "button button1" onclick = "
-function SendNewPositions() {
-  var xhttp = new XMLHttpRequest();
-  // Treba dovrsiti poziv
-}
-
-var positions = {
-  'wK':'x',
-  'wQ':'x',
-  'bK':'x',
-  'bQ':'x'
-}
-
-if (board.position().a1 !== undefined) {
-  positions[board.position().a1] = 'a1'
-  }
-if (board.position().a2 !== undefined) {
-  positions[board.position().a2] = 'a2'
-  }
-if (board.position().a3 !== undefined) {
-  positions[board.position().a3] = 'a3'
-  }
-if (board.position().a4 !== undefined) {
-  positions[board.position().a4] = 'a4'
-  }
-
-if (board.position().b1 !== undefined) {
-  positions[board.position().b1] = 'b1'
-  }
-if (board.position().b2 !== undefined) {
-  positions[board.position().b2] = 'b2'
-  }
-if (board.position().b3 !== undefined) {
-  positions[board.position().b3] = 'b3'
-  }
-if (board.position().b4 !== undefined) {
-  positions[board.position().b4] = 'b4'
-  }
-
-if (board.position().c1 !== undefined) {
-  positions[board.position().c1] = 'c1'
-  }
-if (board.position().c2 !== undefined) {
-  positions[board.position().c2] = 'c2'
-  }
-if (board.position().c3 !== undefined) {
-  positions[board.position().c3] = 'c3'
-  }
-if (board.position().c4 !== undefined) {
-  positions[board.position().c4] = 'c4'
-  }
-
-if (board.position().d1 !== undefined) {
-  positions[board.position().d1] = 'd1'
-  }
-if (board.position().d2 !== undefined) {
-  positions[board.position().d2] = 'd2'
-  }
-if (board.position().d3 !== undefined) {
-  positions[board.position().d3] = 'd3'
-  }
-if (board.position().d4 !== undefined) {
-  positions[board.position().d4] = 'd4'
-  }
-// Ovdje ide AJAX poziv - klikom na button nove se pozicije salju na views
-window.alert('Gumb radi')
-  ">Potvrdi potez</button> <!-- -->
-
-<div id='bQ' ondrop="window.alert('5 + 6')"></div> <!-- Nista ovo -->
+<!-- <button
+  id="button1",
+  class = "button"
+  >Potvrdi potez
+  {% csrf_token %}
+</button> -->
 
 </body>
 </html>
