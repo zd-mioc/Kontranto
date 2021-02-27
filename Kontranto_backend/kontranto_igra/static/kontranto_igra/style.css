@@ -3,14 +3,14 @@ body {
 }
 img {
     display: block;
-    margin-top: 90px;
+    margin-top: 85px;
     margin-bottom: 8%;
     margin-right: auto;
     margin-left: auto;
     height: 300px;
     
 }
-a {
+a, .okvir {
     color: #000000;
     text-decoration: none;
     padding-top: 14px;
@@ -26,7 +26,7 @@ a {
     font-size: 18px;
     transition: 0.35s
 }
-a:hover{
+a:hover, .okvir:hover{
     color:#fff;
     background-color: #1ddadd;
     transition: 0.35s  
