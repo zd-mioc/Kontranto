@@ -58,8 +58,9 @@ def prijelaz(request):
     return render(request, "kontranto_igra/prijelaz.html")
 
 def move(request):
-    body_unicode = request.body.decode('utf-8')
-    jsonFromBody = json.loads(body_unicode)
+    # body_unicode = request.body.decode('utf-8')
+    # jsonFromBody = json.loads(body_unicode)
+    jsonFromBody = json.loads(request.body)
     game_id = jsonFromBody['game_id']
     player_id = jsonFromBody['player_id']
     new_triangle_position = jsonFromBody['new_triangle_position']
@@ -69,13 +70,15 @@ def move(request):
 def game_state(request): #uzimamo state, id od drugog igraca
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
+    # jsonFromBody = json.loads(request.body)
     game_id = jsonFromBody['game_id']
     my_color = jsonFromBody['my_color']
     return HttpResponse(game_state_f(game_id, my_color), content_type="application/json")
 
 def get_move(request):
-    body_unicode = request.body.decode('utf-8')
-    jsonFromBody = json.loads(body_unicode)
+    # body_unicode = request.body.decode('utf-8')
+    # jsonFromBody = json.loads(body_unicode)
+    jsonFromBody = json.loads(request.body)
     game_id = jsonFromBody['game_id']
     my_color = jsonFromBody['my_color']
     opponent_color = jsonFromBody['opponent_color']

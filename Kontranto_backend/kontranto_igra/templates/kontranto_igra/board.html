@@ -132,166 +132,168 @@
                   data: '{"game_id": "'+game_id+'", "my_color": "'+my_color+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
                   success: function(data){
                     console.log("proslo");
-                    var otp = data["otp"]
-                    var ocp = data["ocp"]
-                    var ntp = data["ntp"]
-                    var ncp = data["ncp"]
-                    var ntp_m = data["ntp_m"]
-                    var ncp_m = data["ncp_m"]
+                    if (data["otp"] !== "null"){
+                      var otp = data["otp"]
+                      var ocp = data["ocp"]
+                      var ntp = data["ntp"]
+                      var ncp = data["ncp"]
+                      var ntp_m = data["ntp_m"]
+                      var ncp_m = data["ncp_m"]
 
-                    if (my_color === "black") {
-                      var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
-                      var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
-                      var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
-                      var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
-                    }
-                    else {
-                      var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
-                      var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
-                      var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
-                      var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
-                    }
-                    
-                    var board_state = {}
-                    
-                    if (otp === ntp_m || ocp === ncp_m || otp === ncp_m || ocp === ntp_m) {
-                      if ((otp === ntp_m && ocp === ncp_m) || (otp === ncp_m && ocp === ntp_m)) {
-                        if (otp === ntp_m && ocp === ncp_m) { 
-                          var opponentArgumentPosition_1 = otp
-                          var opponentArgumentPosition_2 = ocp
-                          var currentArgumentPosition_1 = ntp
-                          var currentArgumentPosition_2 = ncp
-                          var myArgumentPosition_1 = ntp_m
-                          var myArgumentPosition_2 = ncp_m
-                          var clrchng = "white-null"
-                          var bs_oAP_1_QorK = "Q"
-                          var bs_oAP_2_QorK = "K"
-                          var cOP_1_QorK = "Q"
-                          var cOP_2_QorK = "K"
-                        }
-                        else if (otp === ncp_m && ocp === ntp_m) {
-                          var opponentArgumentPosition_1 = otp
-                          var opponentArgumentPosition_2 = ocp
-                          var currentArgumentPosition_1 = ncp
-                          var currentArgumentPosition_2 = ntp
-                          var myArgumentPosition_1 = ncp_m
-                          var myArgumentPosition_2 = ntp_m
-                          var clrchng = "black-null"
-                          var bs_oAP_1_QorK = "Q"
-                          var bs_oAP_2_QorK = "K"
-                          var cOP_1_QorK = "Q"
-                          var cOP_2_QorK = "K"
-                        }
-
-                        board_state[ncp] = my_color[0] + "K"
-                        board_state[ntp] = my_color[0] + "Q"
-                        var collidedOpponentFigure_1 = opponent_color[0] + cOP_1_QorK
-                        var collidedOpponentFigure_2 = opponent_color[0] + cOP_2_QorK
-                        imgsrc_1 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_1 + ".png"
-                        imgsrc_2 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_2 + ".png"
-                        var cls_1 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_1
-                        var cls_2 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_2
-                        $("div[data-square="+opponentArgumentPosition_1+"]").attr('class', cls_1);
-                        $("div[data-square="+opponentArgumentPosition_2+"]").attr('class', cls_2);
-                        if (currentArgumentPosition_1 === myArgumentPosition_1) {
-                          $("img[data-piece="+board_state[currentArgumentPosition_1]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                          if ($("div[data-square="+opponentArgumentPosition_1+"] img").length === 1) {
-                            $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:149px;height:149px;" />')
-                          }
-                            $("img[data-piece="+collidedOpponentFigure_1+"]")[1].style="width:70%; position:absolute"
-                        }
-                        else {
-                          board_state[opponentArgumentPosition_1] = opponent_color[0] + bs_oAP_1_QorK
-                        }
-                        if (currentArgumentPosition_2 === myArgumentPosition_2) {
-                          $("img[data-piece="+board_state[currentArgumentPosition_2]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                          if ($("div[data-square="+opponentArgumentPosition_2+"] img").length === 1) {
-                            $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:149px;height:149px;" />')
-                          }
-                          $("img[data-piece="+collidedOpponentFigure_2+"]")[1].style="width:70%; position:absolute"
-                        }
-                        else {
-                          board_state[opponentArgumentPosition_2] = opponent_color[0] + bs_oAP_2_QorK
-                        }
-                        console.log(board_state)
-                        board.position(board_state)
+                      if (my_color === "black") {
+                        var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
+                        var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
+                        var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
+                        var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
                       }
                       else {
-                        if (otp === ntp_m) {
-                          var opponentArgumentPosition = otp
-                          var currentArgumentPosition = ntp
-                          var myArgumentPosition = ntp_m
-                          var freeOpponentPosition = ocp
-                          var clrchng = "white-null"
-                          var fOP_QorK = "K"
-                          var bs_oAP_QorK = "Q"
-                          var cOP_QorK = "Q"
-                        }
-                        else if (ocp === ncp_m) {
-                          var opponentArgumentPosition = ocp
-                          var currentArgumentPosition = ncp
-                          var myArgumentPosition = ncp_m
-                          var freeOpponentPosition = otp
-                          var clrchng = "white-null"
-                          var fOP_QorK = "Q"
-                          var bs_oAP_QorK = "K"
-                          var cOP_QorK = "K"
-                        }
-                        else if (otp === ncp_m) {
-                          var opponentArgumentPosition = otp
-                          var currentArgumentPosition = ncp
-                          var myArgumentPosition = ncp_m
-                          var freeOpponentPosition = ocp
-                          var clrchng = "black-null"
-                          var fOP_QorK = "K"
-                          var bs_oAP_QorK = "Q"
-                          var cOP_QorK = "Q"
-                        }
-                        else if (ocp == ntp_m) {
-                          var opponentArgumentPosition = ocp
-                          var currentArgumentPosition = ntp
-                          var myArgumentPosition = ntp_m
-                          var freeOpponentPosition = otp
-                          var clrchng = "black-null"
-                          var fOP_QorK = "Q"
-                          var bs_oAP_QorK = "K"
-                          var cOP_QorK = "K"
-                        }
-                        board_state[freeOpponentPosition] = opponent_color[0] + fOP_QorK
-                        board_state[ncp] = my_color[0] + "K"
-                        board_state[ntp] = my_color[0] + "Q"
-                        var collidedOpponentFigure = opponent_color[0] + cOP_QorK
-                        imgsrc = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure + ".png"
-                        var cls = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition
-                        $("div[data-square="+opponentArgumentPosition+"]").attr('class', cls);
-                        if (currentArgumentPosition === myArgumentPosition) {
-                          $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                          if ($("div[data-square="+opponentArgumentPosition+"] img").length === 1) {
-                            $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:149px;height:149px;" />')
+                        var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
+                        var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
+                        var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
+                        var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
+                      }
+                      
+                      var board_state = {}
+                      
+                      if (otp === ntp_m || ocp === ncp_m || otp === ncp_m || ocp === ntp_m) {
+                        if ((otp === ntp_m && ocp === ncp_m) || (otp === ncp_m && ocp === ntp_m)) {
+                          if (otp === ntp_m && ocp === ncp_m) { 
+                            var opponentArgumentPosition_1 = otp
+                            var opponentArgumentPosition_2 = ocp
+                            var currentArgumentPosition_1 = ntp
+                            var currentArgumentPosition_2 = ncp
+                            var myArgumentPosition_1 = ntp_m
+                            var myArgumentPosition_2 = ncp_m
+                            var clrchng = "white-null"
+                            var bs_oAP_1_QorK = "Q"
+                            var bs_oAP_2_QorK = "K"
+                            var cOP_1_QorK = "Q"
+                            var cOP_2_QorK = "K"
                           }
-                            $("img[data-piece="+collidedOpponentFigure+"]")[1].style="width:70%; position:absolute"
+                          else if (otp === ncp_m && ocp === ntp_m) {
+                            var opponentArgumentPosition_1 = otp
+                            var opponentArgumentPosition_2 = ocp
+                            var currentArgumentPosition_1 = ncp
+                            var currentArgumentPosition_2 = ntp
+                            var myArgumentPosition_1 = ncp_m
+                            var myArgumentPosition_2 = ntp_m
+                            var clrchng = "black-null"
+                            var bs_oAP_1_QorK = "Q"
+                            var bs_oAP_2_QorK = "K"
+                            var cOP_1_QorK = "Q"
+                            var cOP_2_QorK = "K"
+                          }
+
+                          board_state[ncp] = my_color[0] + "K"
+                          board_state[ntp] = my_color[0] + "Q"
+                          var collidedOpponentFigure_1 = opponent_color[0] + cOP_1_QorK
+                          var collidedOpponentFigure_2 = opponent_color[0] + cOP_2_QorK
+                          imgsrc_1 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_1 + ".png"
+                          imgsrc_2 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_2 + ".png"
+                          var cls_1 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_1
+                          var cls_2 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_2
+                          $("div[data-square="+opponentArgumentPosition_1+"]").attr('class', cls_1);
+                          $("div[data-square="+opponentArgumentPosition_2+"]").attr('class', cls_2);
+                          if (currentArgumentPosition_1 === myArgumentPosition_1) {
+                            $("img[data-piece="+board_state[currentArgumentPosition_1]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                            if ($("div[data-square="+opponentArgumentPosition_1+"] img").length === 1) {
+                              $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:149px;height:149px;" />')
+                            }
+                              $("img[data-piece="+collidedOpponentFigure_1+"]")[1].style="width:70%; position:absolute"
+                          }
+                          else {
+                            board_state[opponentArgumentPosition_1] = opponent_color[0] + bs_oAP_1_QorK
+                          }
+                          if (currentArgumentPosition_2 === myArgumentPosition_2) {
+                            $("img[data-piece="+board_state[currentArgumentPosition_2]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                            if ($("div[data-square="+opponentArgumentPosition_2+"] img").length === 1) {
+                              $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:149px;height:149px;" />')
+                            }
+                            $("img[data-piece="+collidedOpponentFigure_2+"]")[1].style="width:70%; position:absolute"
+                          }
+                          else {
+                            board_state[opponentArgumentPosition_2] = opponent_color[0] + bs_oAP_2_QorK
+                          }
+                          console.log(board_state)
+                          board.position(board_state)
                         }
                         else {
-                          board_state[opponentArgumentPosition] = opponent_color[0] + bs_oAP_QorK
+                          if (otp === ntp_m) {
+                            var opponentArgumentPosition = otp
+                            var currentArgumentPosition = ntp
+                            var myArgumentPosition = ntp_m
+                            var freeOpponentPosition = ocp
+                            var clrchng = "white-null"
+                            var fOP_QorK = "K"
+                            var bs_oAP_QorK = "Q"
+                            var cOP_QorK = "Q"
+                          }
+                          else if (ocp === ncp_m) {
+                            var opponentArgumentPosition = ocp
+                            var currentArgumentPosition = ncp
+                            var myArgumentPosition = ncp_m
+                            var freeOpponentPosition = otp
+                            var clrchng = "white-null"
+                            var fOP_QorK = "Q"
+                            var bs_oAP_QorK = "K"
+                            var cOP_QorK = "K"
+                          }
+                          else if (otp === ncp_m) {
+                            var opponentArgumentPosition = otp
+                            var currentArgumentPosition = ncp
+                            var myArgumentPosition = ncp_m
+                            var freeOpponentPosition = ocp
+                            var clrchng = "black-null"
+                            var fOP_QorK = "K"
+                            var bs_oAP_QorK = "Q"
+                            var cOP_QorK = "Q"
+                          }
+                          else if (ocp == ntp_m) {
+                            var opponentArgumentPosition = ocp
+                            var currentArgumentPosition = ntp
+                            var myArgumentPosition = ntp_m
+                            var freeOpponentPosition = otp
+                            var clrchng = "black-null"
+                            var fOP_QorK = "Q"
+                            var bs_oAP_QorK = "K"
+                            var cOP_QorK = "K"
+                          }
+                          board_state[freeOpponentPosition] = opponent_color[0] + fOP_QorK
+                          board_state[ncp] = my_color[0] + "K"
+                          board_state[ntp] = my_color[0] + "Q"
+                          var collidedOpponentFigure = opponent_color[0] + cOP_QorK
+                          imgsrc = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure + ".png"
+                          var cls = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition
+                          $("div[data-square="+opponentArgumentPosition+"]").attr('class', cls);
+                          if (currentArgumentPosition === myArgumentPosition) {
+                            $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                            if ($("div[data-square="+opponentArgumentPosition+"] img").length === 1) {
+                              $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:149px;height:149px;" />')
+                            }
+                              $("img[data-piece="+collidedOpponentFigure+"]")[1].style="width:70%; position:absolute"
+                          }
+                          else {
+                            board_state[opponentArgumentPosition] = opponent_color[0] + bs_oAP_QorK
+                          }
+                          console.log(board_state)
+                          board.position(board_state)
                         }
+                      }
+
+                      else if (status === "WAITING_FOR_MOVE") {
+                        board_state[otp] = opponent_color[0] + "Q"
+                        board_state[ocp] = opponent_color[0] + "K"
+                        board_state[ntp] = my_color[0] + "Q"
+                        board_state[ncp] = my_color[0] + "K"
                         console.log(board_state)
                         board.position(board_state)
                       }
+                      
+                      w_spare_circle.style.display="none"
+                      w_spare_triangle.style.display="none"
+                      b_spare_circle.style.display="none"
+                      b_spare_triangle.style.display="none"
                     }
-
-                    else if (status === "WAITING_FOR_MOVE") {
-                      board_state[otp] = opponent_color[0] + "Q"
-                      board_state[ocp] = opponent_color[0] + "K"
-                      board_state[ntp] = my_color[0] + "Q"
-                      board_state[ncp] = my_color[0] + "K"
-                      console.log(board_state)
-                      board.position(board_state)
-                    }
-                    
-                    w_spare_circle.style.display="none"
-                    w_spare_triangle.style.display="none"
-                    b_spare_circle.style.display="none"
-                    b_spare_triangle.style.display="none"
                 	},
                   error: function(){
                     console.log("nije proslo");
@@ -349,14 +351,15 @@
         }
         
         if (my_color === "white") {
-          var ntp = dict['wQ']
-          var ncp = dict['wK']
+          var mntp = dict['wQ']
+          var mncp = dict['wK']
         }
         else {
-          var ntp = dict['bQ']
-          var ncp = dict['bK']
+          var mntp = dict['bQ']
+          var mncp = dict['bK']
         }
-
+        var new_triangle_position = [mntp[0], mntp[1]]
+        var new_circle_position = [mncp[0], mncp[1]]
         $.ajax({
           type:"POST",
           url:"http://127.0.0.1:8000/move",
@@ -364,15 +367,23 @@
           headers:{"X-CSRFTOKEN":csrf},
           dataType: "json",
           processData: false,
-          data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": ['+ntp[0]+', '+ntp[1]+'], "new_circle_position": ['+ncp[0]+', '+ncp[1]+']}',
+          data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": "'+new_triangle_position+'", "new_circle_position": "'+new_circle_position+'"}',
           success: function(data){ 
             console.log(data)
             if (data["status"] !== "OK") {
-              if (data["triangle0_position"] !=="X") {
-                board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
+              if (data["status"] === "Greska: ne mozete pomaknuti obje figure na isto polje.") {
+                board.position()[data["new_triangle_position"]] = undefined
+                board.position()[data["new_circle_position"]] = undefined
+                board.position()[data["triangle0_position"]] = my_color[0] + "Q"
+                board.position()[data["circle0_position"]] = my_color[0] + "K"
               }
-              if (data["circle0_position"] !=="X") {
-                board.move(data["new_circle_position"] + "-" + data["circle0_position"])
+              else {
+                if (data["triangle0_position"] !=="X") {
+                  board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
+                }
+                if (data["circle0_position"] !=="X") {
+                  board.move(data["new_circle_position"] + "-" + data["circle0_position"])
+                }
               }
             }
           },

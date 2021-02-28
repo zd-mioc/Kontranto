@@ -88,7 +88,13 @@ def game_state_f(game_id, my_color):
         return json.dumps({"status": "Greska: ne postoji igra s tim game_id-em."})
 
 def get_move_f(game_id, my_color, opponent_color, ntp, ncp):
+    ntp = chr(97+int(ntp[2]))+str(4-int(ntp[0]))
+    ncp = chr(97+int(ncp[2]))+str(4-int(ncp[0]))
     g = Game.objects.get(game = game_id)
+    try:
+        m00 = Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
+    except:
+        return json.dumps({"ntp": ntp, "ncp": ncp, "otp": "null", "ocp": "null", "ntp_m": "null", "ncp_m": "null"})
     if g.game_state=="WAITING_FOR_MOVE" or (my_color=="white" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE") or (my_color=="black" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE"):
         mm = Move.objects.filter(game_id=g.id, color=my_color).order_by('-move_timestamp')[0]
     elif (my_color=="white" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE") or (my_color=="black" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE"):
@@ -97,8 +103,6 @@ def get_move_f(game_id, my_color, opponent_color, ntp, ncp):
         mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[0]
     elif (my_color=="black" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE") or (my_color=="white" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE"):
         mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[1]
-    ntp = chr(97+int(ntp[2]))+str(4-int(ntp[0]))
-    ncp = chr(97+int(ncp[2]))+str(4-int(ncp[0]))
     ntp_m = chr(97+int(mm.triangle_position[4]))+str(4-int(mm.triangle_position[1]))
     ncp_m = chr(97+int(mm.circle_position[4]))+str(4-int(mm.circle_position[1]))
     otp = chr(97+int(mo.triangle_position[4]))+str(4-int(mo.triangle_position[1]))
@@ -124,6 +128,8 @@ def rotate(l):
             l[2*i+1]=x
 
 def make_move (game_id, player_id, new_triangle_position, new_circle_position):
+    new_triangle_position = [int(new_triangle_position[0]), int(new_triangle_position[2])]
+    new_circle_position = [int(new_circle_position[0]), int(new_circle_position[2])]
     try:
         g=Game.objects.get(game=game_id)
     except ObjectDoesNotExist:
@@ -143,14 +149,37 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     elif player_color=="black" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         return json.dumps({"status": "Greska: vec ste odigrali potez; cekajte potez bijelog igraca."})
 
-    triangle_position=new_triangle_position
-    circle_position=new_circle_position
-    if "X" in g.board[triangle_position[0]][triangle_position[1]]:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na ponisteno polje."})
-    if "X" in g.board[circle_position[0]][circle_position[1]]:
-        return json.dumps({"status": "Greska: ne mozete se pomaknuti na ponisteno polje."})
-    if new_triangle_position==new_circle_position:
-        return json.dumps({"status": "Greska: ne mozete pomaknuti obje figure na isto polje"})
+    try:
+        m0=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[0]
+        m00=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
+    except:
+        if new_triangle_position==new_circle_position:
+            return json.dumps({"status": "Greska: ne mozete pomaknuti obje figure na isto polje"})
+        pass
+    else:
+        triangle_position=new_triangle_position
+        circle_position=new_circle_position
+        move0=Move.objects.filter(color=player_color).order_by('-move_timestamp')[0]        # ovo dohvacamo radi error responsea (snapback)
+        s=move0.triangle_position
+        triangle0_position=[int(s[1]), int(s[4])]
+        s=move0.circle_position
+        circle0_position=[int(s[1]), int(s[4])]
+        error_resp = {"status": "Greska: ne mozete se pomaknuti na ponisteno polje.", "triangle0_position": "X", "circle0_position": "X"}
+        error_resp["new_triangle_position"] = chr(97+int(new_triangle_position[1]))+str(4-int(new_triangle_position[0]))
+        error_resp["new_circle_position"] = chr(97+int(new_circle_position[1]))+str(4-int(new_circle_position[0]))
+        if "X" in g.board[triangle_position[0]][triangle_position[1]]:
+            error_resp["triangle0_position"] = chr(97+int(triangle0_position[1]))+str(4-int(triangle0_position[0]))
+            # return json.dumps({"status": "Greska: ne mozete se pomaknuti na ponisteno polje."})
+        if "X" in g.board[circle_position[0]][circle_position[1]]:
+            error_resp["circle0_position"] = chr(97+int(circle0_position[1]))+str(4-int(circle0_position[0]))
+            # return json.dumps({"status": "Greska: ne mozete se pomaknuti na ponisteno polje."})
+        if new_triangle_position==new_circle_position:
+            error_resp = {"status": "Greska: ne mozete pomaknuti obje figure na isto polje.", "triangle0_position": "X", "circle0_position": "X"}
+            error_resp["triangle0_position"] = chr(97+int(triangle0_position[1]))+str(4-int(triangle0_position[0]))
+            error_resp["circle0_position"] = chr(97+int(circle0_position[1]))+str(4-int(circle0_position[0]))
+            # return json.dumps({"status": "Greska: ne mozete pomaknuti obje figure na isto polje"})
+        if error_resp["triangle0_position"] != "X" or error_resp["circle0_position"] != "X":
+            return json.dumps(error_resp)
 
     # greska ako je igrac odigrao na nedohvativo polje
         # treba prvo provjeriti radi li se o pocetku igre jer su tada sva polja dostupna
@@ -197,6 +226,8 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
     elif g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
         w_score=g.white_score
         b_score=g.black_score
+        triangle_position=new_triangle_position
+        circle_position=new_circle_position
         # dohvacamo 2 zadnja poteza iz tablice Move
             # zadnji bi trebao biti nas potez koji je upravo upisan, pa dohvacamo samo onaj prije njega
         previous_move=Move.objects.filter(game_id=g.id).order_by('-move_timestamp')[1]
@@ -206,10 +237,11 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         circle2_position=[int(s[1]), int(s[4])]
         # provjeravamo je li doslo do sudara
         collision="none"
-        if triangle_position==triangle2_position and m.circle_position==circle2_position:
+        # return ({"triangle2_position" : triangle2_position, "circle2_position" : circle2_position, "collision" : collision})
+        if triangle_position==triangle2_position and circle_position==circle2_position:
             collision="double_collision_same"
             w_score+=2
-        elif triangle_position==circle2_position and m.circle_position==triangle2_position:
+        elif triangle_position==circle2_position and circle_position==triangle2_position:
             collision="double_collision_different"
             b_score+=2
         elif triangle_position==triangle2_position:
