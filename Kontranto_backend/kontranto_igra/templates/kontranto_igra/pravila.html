@@ -1,0 +1,58 @@
+{% load static %}
+<hmtl>
+    <head>
+        <title>Kontranto</title>
+        <link rel="stylesheet" href="{% static "kontranto_igra/stilpra.css" %}">
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+    <body>
+        <!-- <img src="{% static "kontranto_igra/images/pozadina2trans.png" %}" alt="logo1"> -->
+        <p class="naslov">PRAVILA IGRE</p>
+        <p class="autor">Autor: Siniša Matić</p>
+        <p class="podnaslov">
+            PLOČA, FIGURE I BOJE <br> <br>
+        </p>
+        <p class="text">
+            1.  Igrači igraju jedan protiv drugoga na kvadratnoj ploči koju čine 16 polja. <br>
+            2. Svaki igrač raspolaže s dvije figure, krugom i trokutom. Jedan igrač igra bijelim a drugi crnim figurama. <br>
+            3. Igraču koji kreira igru se nasumično dodjeljuje boja (crna ili bijela), a igrač koji se pridružuje igri dobiva boju suprotnu od boje prvog igrača. <br> <br>           
+        </p>
+        <p class="podnaslov">
+            KORACI I POTEZI <br> <br>
+        </p>
+        <p class="text">
+            4. Partija se odigrava u koracima. Svaki korak sastoji se od poteza pojedinih igrača. Igrači odlučuju o svom potezu bez znanja protivnika. Tek kada igrači svojim potezima korak u cijelosti odrede,  protivnikovi se potezi igraču na ploči otkrivaju. <br>        
+            5. Igrači svoje poteze određuju u zadanom vremenskom ograničenju. <br>
+            6. U prvom koraku igrači slobodno biraju na koja će različita polja ploče postaviti svoje figure. Potom u svakom sljedećem koraku oni svoje figure smiju pomicati za jedno polje u ma kojem smjeru (ravno ili dijagonalno) na polje koje nije poništeno. Figure smiju i ostati na svom polju. Dakle, igrač smije po volji pomicati obje svoje figure, samo jednu ili nijednu. Figure iste boje pritom ne smiju zauzeti isto polje. <br> <br>
+        </p>
+        <p class="podnaslov">
+            SUDARI I BODOVI <br> <br>
+        </p>
+        <p class="text">
+            7. U koraku se (nije isključeno da to bude već prvi) može dogoditi sudar u kojem se figure različite boje nađu na jednom polju.  Ako se sudare figure istog oblika, igrač koji igra bijelim figurama dobiva 1 bod. Ako se sudare figure različitog oblika, bod dobiva igrač s crnim figurama. U koraku nakon sudara figure moraju napustiti polje sudara, koje se ujedno poništava (bojom igrača koji je tu dobio bod). Na to polje igrači više ne mogu postavljati svoje figure. <br>
+            8. 'Šok-polje' služi kako bi se izbjegle 'trome' dionice igre bez rizika i bodovne promjene. Šok polje se na početku partije određuje slučajnim odabirom neovisno o igračima. Ono je polje slobodno za igru a svojoj posebnoj namjeni služi samo onda kada se u slobodnom području igre nalaze sve četiri figure.  Po isteku osmog koraka bez rezultatske promjene pokreće se 'šok-korak'. U šok koraku svaki igrač mora jednu svoju figuru staviti na šok polje kako bi sudar postao neizbježan. Potez druge figure treba biti u skladu s pravilom 6. Nakon 'šok-sudara' šok polje se poništava a neko drugo polje slučajnim odabirom preuzima tu ulogu. <br> <br>
+        </p>
+        <p class="podnaslov">
+            OGRANIČENJE BROJA KORAKA S ODSJEČENIM FIGURAMA I PONOVLJENE POZICIJE <br>
+        </p>
+        <p class="text">
+            9. Ako tijekom igre neka figura postane neaktivna, tako da je poništenim poljima odsječena od ostalih, šok polje se više ne smije koristiti za rezultatsku promjenu. Ne primijeni li se rezultat u 'maksimalnom broju koraka', igra završava trenutnim rezultatom. Maksimalni broj koraka odgovara broju neponištenih polja u slobodnom području igre. U slučaju da se igra podijelila na dvije odvojene igre (po dvije figure različite boje u slobodnim dijelovima ploče), maksimalni broj koraka primjenjuje se na svaku 'pod-igru' posebno.  Ukupna partija završava tek kad obje pod-igre posebno završe.  <br>
+            10. Pozicija je ponovljena ako se unutar nekog koraka dogodi da poslani potezi postavljaju figure na polja na kojima su se zajedno u istom rasporedu već nalazila. Ponovljene su pozicije zabranjene. Korak koji vodi u ponovljenu poziciju poništava se i igrači trebaju povući drugi potez. U ispravljenom potezu svaki igrač mora barem jednu svoju figuru pomaknuti. U slučaju da je pozicija i nakon korektivnih poteza ponovljena, odigrava se drugi korektivni potez u kojem svaki igrač mora pomaknuti svaku svoju figuru. Ako se pozicija ponovi i nakon drugog korektivnog poteza, partija završava s trenutnim rezultatom. <br> <br>
+        </p>
+        <p class="podnaslov">
+            ZAVRŠETAK REDOVNE PARTIJE I PENALI <br> <br>
+        </p>
+        <p class="text">
+            11. Partija završava u nekom od sljedećih slučajeva: <br>
+            a) kad jedan igrač skupi 9 bodova (tada taj rezultat postaje konačan), <br>
+            b) predajom nekog igrača (tada se bilježi trenutni rezultat i pobjeda dodjeljuje protivniku igrača koji je predao), <br>
+            c) kada se figure više ne mogu sudariti, <br>
+            d) po pravilu maksimalnog broja koraka,  <br>
+            e) zbog dvostrukog ponavljanja pozicije, <br>
+            f) istekom raspoloživog vremena nekog igrača (igrač kojemu je isteklo vrijeme gubi neovisno o trenutnom rezultatu koji se evidentira). <br>
+            12. U slučaju izjednačenog rezultata na kraju partije odigravaju se 'penali'. Penal je korak u kojem svaki igrač bez znanja protivnika bira po jednu svoju figuru. Ukoliko su dvije odabrane figure istog oblika, bod slijedi bijelom a ako se odabrane figure po obliku razlikuju, bod dobiva crni. Penalnih koraka može biti najviše pet a igraju se dok neki od igrača na taj načine ne dobije tri boda. Rezultat penala bilježi se u zagradama pored završnog rezultata, npr. 4:4 (3:1). 
+        </p>
+        <a href="./početna" class="pov_na_poc">Povratak na početnu</a>
+        <a href="#" class="pov_na_vrh">Povratak na vrh</a>
+        
+    </body>
+</html>
