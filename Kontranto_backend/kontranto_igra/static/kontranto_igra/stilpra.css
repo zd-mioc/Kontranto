@@ -1,0 +1,204 @@
+body {
+    background-image: url("pozadina2trans.png");
+    background-position: center;
+    background-size: cover;
+    background-attachment: fixed;
+    background-color: #b4f3ff;
+}
+img {
+    display: block;
+    margin-top: 90px;
+    margin-bottom: 8%;
+    margin-right: auto;
+    margin-left: auto;
+    height: 300px; 
+}
+/* p {
+    color: #000;
+    text-decoration: none;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    width: 35%;
+    text-align: center;
+    display: block;
+    margin-top: 100px;
+    margin-left: 200px;
+    position: absolute;
+    background-color:rgb(0, 0, 0);
+    border-radius: 0px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 30px;
+    transition: 0.35s
+}
+p:hover{
+    color:#fff;
+    background-color: #229418;
+    transition: 0.35s  
+} */
+
+.pov_na_poc {
+    color: #000000;
+    text-decoration: none;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    width: 20%;
+    text-align: center;
+    display: inline-block;
+    /* margin: 70px; */
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: 7%;
+    margin-right: 22%;
+    background-color:#fff;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px grey;
+    font-family: 'Mulish', sans-serif;
+    font-size: 18px;
+    transition: 0.35s
+}
+
+.pov_na_vrh {
+    color: #000000;
+    text-decoration: none;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    width: 20%;
+    text-align: center;
+    display: inline-block;
+    /* margin: 70px; */
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: 22%;
+    margin-right: 7%;
+    background-color:#fff;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px grey;
+    font-family: 'Mulish', sans-serif;
+    font-size: 18px;
+    transition: 0.35s
+}
+
+a:hover {
+    color:#fff;
+    background-color: #1ddadd;
+    transition: 0.35s  
+}
+
+/* a{  color: #ffffff;
+    text-decoration: none;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    width: 35%;
+    text-align: center;
+    display: block;
+    margin-top: 100px;
+    margin-left: 1200px;
+    position: absolute;
+    background-color:rgb(121, 121, 121);
+    border: rgb(0, 0, 0);
+    border-width: 2px;
+    border-radius: 0px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 30px;
+    transition: 0.35s
+} */
+
+/* a:hover{
+    color:#fff;
+    background-color: rgb(144, 8, 215);
+    transition: 0.35s  
+} */
+
+.text {
+    color: #000;
+    text-decoration: none;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    width: 80%;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    background-image: url("pozadinael.png");
+    background-size: cover;
+    background-attachment: fixed;
+    border-radius: 0px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 25px;
+    transition: 0.35s
+}
+.rectangle{
+    position: absolute;
+    top: 100px;
+    left: 200px;
+    height: 800px;
+    width: 600px;
+    background-color: black;
+    opacity: 0.75;
+}
+.rectangler{
+    position: absolute;
+    top: 0px;
+    left: 900px;
+    height: 800px;
+    width: 600px;
+    background-color: black;
+    opacity: 1;
+}
+
+.naslov {
+    color: #000;
+    text-decoration: none;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    width: 80%;
+    text-align: center;
+    display: block;
+    margin-top: 2%;
+    margin-bottom: 0%;
+    margin-left: auto;
+    margin-right: auto;
+    background-image: url("pozadinael.png");
+    background-size: cover;
+    background-attachment: fixed;
+    border-radius: 0px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 40px;
+    /* transition: 0.35s */
+}
+
+.autor {
+    color: #000;
+    text-decoration: none;
+    /* text-align: center; */
+    font-family: 'Mulish', sans-serif;
+    font-size: 20px;
+    display: block;
+    margin-left: 55%;
+    margin-top: 0%;
+    background-image: url("pozadinael.png");
+    background-size: cover;
+    background-attachment: fixed;
+    border-radius: 0px;
+    /* transition: 0.35s */
+}
+
+.podnaslov {
+    color: #000;
+    text-decoration: none;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    width: 80%;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
+    background-image: url("pozadinael.png");
+    background-size: cover;
+    background-attachment: fixed;
+    border-radius: 0px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 25px;
+    transition: 0.35s
+}
