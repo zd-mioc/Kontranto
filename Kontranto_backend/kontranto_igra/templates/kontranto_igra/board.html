@@ -22,7 +22,7 @@
     }
     .gamedata{
       position:absolute;
-      top:50%;
+      top:7%;
       transform:translate(0,-50%)
     }
     </style> 
@@ -73,7 +73,8 @@
       if (my_color === "black") {
         board.flip()
       }
-      var provjera = setInterval(myTimer, 3000);
+
+      var provjera = setInterval(myTimer, 1000);
       function myTimer() {
         positions=[
         [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
@@ -120,6 +121,7 @@
               opponent_id = data["opponent_id"];
               status = data["game_state"];
               $("#game_status").text(status);
+              $("#opponent_id").text(opponent_id);
               if (status === "WAITING_FOR_MOVE" || status === "WAITING_FOR_BLACK_PLAYER_MOVE" || status === "WAITING_FOR_WHITE_PLAYER_MOVE") { //dohvacanje protivnikovog poteza
                 $.ajax({
                   type:"POST",
@@ -397,20 +399,20 @@
   </script>
 
 
-<div class = "button1">
+<div class = "okvir">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
-    <button id="button1" name="Potvrdi potez" type="submit">Potvrdi potez</button>
+    <a id="button1" name="Potvrdi potez" type="submit">Potvrdi potez</a>
 </div>
 
 <!-- IZMJENE -->
 
-
 <div class="gamedata">
-  status je <span id="game_status"></span> <br>
-  game_id je {{game_id}} <br>
-  my_id je {{my_id}} <br>
-  opponent_id je {{opponent_id}} <br>
-  my_color je {{my_color}} <br>  
+  Trenutni status: <br>
+  <span id="game_status"></span> <br>
+  Game_id: {{game_id}} <br>
+  Igrač: {{my_id}} <br>
+  Boja: {{my_color}} <br> 
+  Suparnik: <span id="opponent_id"></span> <br> 
 </div>
 
 <div id="board", style="width: 46.6%; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>

@@ -534,9 +534,9 @@
   function buildContainerHTML (hasSparePieces) {
     var html = '<div class="{chessboard}">'
 
-    if (hasSparePieces) {
-      html += '<div class="{sparePieces} {sparePiecesTop}"></div>'
-    }
+    // if (hasSparePieces) {                         izmjena
+    //   html += '<div class="{sparePieces} {sparePiecesTop}"></div>'
+    // }
 
     html += '<div class="{board}"></div>'
 
@@ -1169,10 +1169,10 @@
 
       if (config.sparePieces) {
         if (currentOrientation === 'white') {
-          $sparePiecesTop.html(buildSparePiecesHTML('black'))
+          // $sparePiecesTop.html(buildSparePiecesHTML('black'))
           $sparePiecesBottom.html(buildSparePiecesHTML('white'))
         } else {
-          $sparePiecesTop.html(buildSparePiecesHTML('white'))
+          // $sparePiecesTop.html(buildSparePiecesHTML('white'))
           $sparePiecesBottom.html(buildSparePiecesHTML('black'))
         }
       }
@@ -1821,7 +1821,7 @@
       $board = $container.find('.' + CSS.board)
 
       if (config.sparePieces) {
-        $sparePiecesTop = $container.find('.' + CSS.sparePiecesTop)
+        // $sparePiecesTop = $container.find('.' + CSS.sparePiecesTop)
         $sparePiecesBottom = $container.find('.' + CSS.sparePiecesBottom)
       }
 

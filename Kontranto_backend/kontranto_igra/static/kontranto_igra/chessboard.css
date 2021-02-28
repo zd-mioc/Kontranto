@@ -23,12 +23,12 @@
 }
 
 .white-1e1d7 {
-  background-color: rgb(172, 229, 255);
+  background-color: #b4f3ff;
   color: #000;
 }
 
 .black-3c85d {
-  background-color: #84b3ff;
+  background-color: #a0c4ff;
   color: #000;
 }
 
@@ -66,7 +66,7 @@
 .spare-pieces-bottom-ae20f {
   position:absolute;
   top:35%;
-  left:15%;
+  left:7%;
   transform:translate(0,-50%);
   width: 11.5%;
   height: 20%;
@@ -76,9 +76,35 @@
 .spare-pieces-top-4028b{
   position:absolute;
   top:35%;
-  right:15%;
+  right:12%;
   transform:translate(0,-50%);
   width: 11.5%;
   height: 20%;
   padding: 0px;
+  display: none
+}
+
+.okvir {
+  position: absolute;
+  color: #000000;
+  text-decoration: none;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  width: 15%;
+  text-align: center;
+  display: block;
+  top: 45%;
+  right: 5.5%;
+  background-color:#fff;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px grey;
+  font-family: 'Mulish', sans-serif;
+  font-size: 2vw;
+  transition: 0.35s
+}
+a:hover, .okvir:hover{
+  color:#fff;
+  background-color: #1ddadd;
+  transition: 0.35s;
+  cursor: pointer
 }
