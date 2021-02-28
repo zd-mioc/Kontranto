@@ -155,11 +155,66 @@
                     var board_state = {}
                     
                     if (otp === ntp_m || ocp === ncp_m || otp === ncp_m || ocp === ntp_m) {
-                      if (otp === ntp_m && ocp === ncp_m) {
-                        console.log("joj")
-                      }
-                      else if (otp === ncp_m && ocp === ntp_m) {
-                        console.log("jao")
+                      if ((otp === ntp_m && ocp === ncp_m) || (otp === ncp_m && ocp === ntp_m)) {
+                        if (otp === ntp_m && ocp === ncp_m) { 
+                          var opponentArgumentPosition_1 = otp
+                          var opponentArgumentPosition_2 = ocp
+                          var currentArgumentPosition_1 = ntp
+                          var currentArgumentPosition_2 = ncp
+                          var myArgumentPosition_1 = ntp_m
+                          var myArgumentPosition_2 = ncp_m
+                          var clrchng = "white-null"
+                          var bs_oAP_1_QorK = "Q"
+                          var bs_oAP_2_QorK = "K"
+                          var cOP_1_QorK = "Q"
+                          var cOP_2_QorK = "K"
+                        }
+                        else if (otp === ncp_m && ocp === ntp_m) {
+                          var opponentArgumentPosition_1 = otp
+                          var opponentArgumentPosition_2 = ocp
+                          var currentArgumentPosition_1 = ncp
+                          var currentArgumentPosition_2 = ntp
+                          var myArgumentPosition_1 = ncp_m
+                          var myArgumentPosition_2 = ntp_m
+                          var clrchng = "black-null"
+                          var bs_oAP_1_QorK = "Q"
+                          var bs_oAP_2_QorK = "K"
+                          var cOP_1_QorK = "Q"
+                          var cOP_2_QorK = "K"
+                        }
+
+                        board_state[ncp] = my_color[0] + "K"
+                        board_state[ntp] = my_color[0] + "Q"
+                        var collidedOpponentFigure_1 = opponent_color[0] + cOP_1_QorK
+                        var collidedOpponentFigure_2 = opponent_color[0] + cOP_2_QorK
+                        imgsrc_1 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_1 + ".png"
+                        imgsrc_2 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_2 + ".png"
+                        var cls_1 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_1
+                        var cls_2 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_2
+                        $("div[data-square="+opponentArgumentPosition_1+"]").attr('class', cls_1);
+                        $("div[data-square="+opponentArgumentPosition_2+"]").attr('class', cls_2);
+                        if (currentArgumentPosition_1 === myArgumentPosition_1) {
+                          $("img[data-piece="+board_state[currentArgumentPosition_1]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                          if ($("div[data-square="+opponentArgumentPosition_1+"] img").length === 1) {
+                            $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:149px;height:149px;" />')
+                          }
+                            $("img[data-piece="+collidedOpponentFigure_1+"]")[1].style="width:70%; position:absolute"
+                        }
+                        else {
+                          board_state[opponentArgumentPosition_1] = opponent_color[0] + bs_oAP_1_QorK
+                        }
+                        if (currentArgumentPosition_2 === myArgumentPosition_2) {
+                          $("img[data-piece="+board_state[currentArgumentPosition_2]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                          if ($("div[data-square="+opponentArgumentPosition_2+"] img").length === 1) {
+                            $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:149px;height:149px;" />')
+                          }
+                          $("img[data-piece="+collidedOpponentFigure_2+"]")[1].style="width:70%; position:absolute"
+                        }
+                        else {
+                          board_state[opponentArgumentPosition_2] = opponent_color[0] + bs_oAP_2_QorK
+                        }
+                        console.log(board_state)
+                        board.position(board_state)
                       }
                       else {
                         if (otp === ntp_m) {
@@ -210,9 +265,11 @@
                         var cls = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition
                         $("div[data-square="+opponentArgumentPosition+"]").attr('class', cls);
                         if (currentArgumentPosition === myArgumentPosition) {
-                          $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%"
-                          $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:149px;height:149px;" />')
-                          $("img[data-piece="+collidedOpponentFigure+"]")[1].style="width:70%; top:30%; left:30%; position:absolute"
+                          $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
+                          if ($("div[data-square="+opponentArgumentPosition+"] img").length === 1) {
+                            $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:149px;height:149px;" />')
+                          }
+                            $("img[data-piece="+collidedOpponentFigure+"]")[1].style="width:70%; position:absolute"
                         }
                         else {
                           board_state[opponentArgumentPosition] = opponent_color[0] + bs_oAP_QorK
