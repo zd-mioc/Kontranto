@@ -821,7 +821,8 @@
       }
 
       // spare pieces
-      var pieces = 'KQRNBP'.split('')
+      // var pieces = 'KQRNBP'.split('')  promjena
+      var pieces = 'KQ'.split('')
       for (i = 0; i < pieces.length; i++) {
         var whitePiece = 'w' + pieces[i]
         var blackPiece = 'b' + pieces[i]
@@ -929,9 +930,11 @@
     }
 
     function buildSparePiecesHTML (color) {
-      var pieces = ['wK', 'wQ', 'wR', 'wB', 'wN', 'wP']
+      // var pieces = ['wK', 'wQ', 'wR', 'wB', 'wN', 'wP']
+      var pieces = ['wK', 'wQ']
       if (color === 'black') {
-        pieces = ['bK', 'bQ', 'bR', 'bB', 'bN', 'bP']
+        // pieces = ['bK', 'bQ', 'bR', 'bB', 'bN', 'bP']
+        pieces = ['bK', 'bQ']
       }
 
       var html = ''
@@ -1165,18 +1168,14 @@
       drawPositionInstant()
 
       if (config.sparePieces) {
-        $sparePiecesTop.html(buildSparePiecesHTML('black'))
-        $sparePiecesBottom.html(buildSparePiecesHTML('white'))
+        if (currentOrientation === 'white') {
+          $sparePiecesTop.html(buildSparePiecesHTML('black'))
+          $sparePiecesBottom.html(buildSparePiecesHTML('white'))
+        } else {
+          $sparePiecesTop.html(buildSparePiecesHTML('white'))
+          $sparePiecesBottom.html(buildSparePiecesHTML('black'))
+        }
       }
-      // if (config.sparePieces) {
-      //   if (currentOrientation === 'white') {
-      //     $sparePiecesTop.html(buildSparePiecesHTML('black'))
-      //     $sparePiecesBottom.html(buildSparePiecesHTML('white'))
-      //   } else {
-      //     $sparePiecesTop.html(buildSparePiecesHTML('white'))
-      //     $sparePiecesBottom.html(buildSparePiecesHTML('black'))
-      //   }
-      // }
     }
 
     function setCurrentPosition (position) {
@@ -1616,7 +1615,7 @@
       if (config.sparePieces) {
         $container
           .find('.' + CSS.sparePieces)
-          .css('paddingLeft', squareSize + boardBorderSize + 'px')
+          // .css('paddingLeft', squareSize + boardBorderSize + 'px')       promjena
       }
 
       // redraw the board

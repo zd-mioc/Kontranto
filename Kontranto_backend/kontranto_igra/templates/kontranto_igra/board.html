@@ -52,7 +52,6 @@
     }
     var csrf = '{{ csrf }}';
 
-
     var dict = {
       'wK':'x',
       'wQ':'x',
@@ -107,6 +106,8 @@
           var ntp = dict['bQ']
           var ncp = dict['bK']
         }
+        // console.log(ntp)
+        // console.log(ncp)
         $.ajax({
           type:"POST",
           url:"http://127.0.0.1:8000/game_state",
@@ -119,7 +120,7 @@
               opponent_id = data["opponent_id"];
               status = data["game_state"];
               $("#game_status").text(status);
-              if (status === "WAITING_FOR_MOVE") { //dohvacanje protivnikovog poteza
+              if (status === "WAITING_FOR_MOVE" || status === "WAITING_FOR_BLACK_PLAYER_MOVE" || status === "WAITING_FOR_WHITE_PLAYER_MOVE") { //dohvacanje protivnikovog poteza
                 $.ajax({
                   type:"POST",
                   url:"http://127.0.0.1:8000/get_move",
@@ -127,31 +128,64 @@
                   headers:{"X-CSRFTOKEN":csrf},
                   dataType: "json",
                   processData: false,
-                  data: '{"game_id": "'+game_id+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
+                  // data: '{"game_id": "'+game_id+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
+                  data: '{"game_id": "'+game_id+'", "my_color": "'+my_color+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
                   success: function(data){
                     console.log("proslo");
-                    var otp = data["new_triangle_position"]
-                    var ocp = data["new_circle_position"]
+                    var otp = data["otp"]
+                    var ocp = data["ocp"]
                     var ntp = data["ntp"]
                     var ncp = data["ncp"]
-                    var board_state = {}
-                    if (my_color === "white") {
-                      board_state[otp] = "bQ"
-                      board_state[ocp] = "bK"
-                      board_state[ntp] = "wQ"
-                      board_state[ncp] = "wK"
+                    var ntp_m = data["ntp_m"]
+                    var ncp_m = data["ncp_m"]
+
+                    if (my_color === "black") {
+                      var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
+                      var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
+                      var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
+                      var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
                     }
                     else {
-                      board_state[otp] = "wQ"
-                      board_state[ocp] = "wK"
-                      board_state[ntp] = "bQ"
-                      board_state[ncp] = "bK"
+                      var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
+                      var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
+                      var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
+                      var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
                     }
-                    board.position(board_state)
-                    // var move_t = data["otp"] + "-" + data["new_triangle_position"]
-                    // var move_c = data["ocp"] + "-" + data["new_circle_position"]
-                    // board.move(move_t)
-                    // board.move(move_c)
+                    
+                    var board_state = {}
+                    if (otp === ntp_m) {
+                      board_state[ocp] = opponent_color[0] + "K"
+                      board_state[ncp] = my_color[0] + "K"
+                      board_state[ntp] = my_color[0] + "Q"
+                      otp2 = opponent_color[0] + "Q"
+                      imgsrc = "/static/kontranto_igra/images/chesspieces/wikipedia/" + otp2 + ".png"
+                      var clrchng = "white-null"
+                      var cls = "square-55d63 " + clrchng + " square-" + otp
+                      $("div[data-square="+otp+"]").attr('class', cls);
+                      if (ntp == ntp_m) {
+                        $("img[data-piece="+board_state[ntp]+"]")[0].style="width:70%"
+                        $("div[data-square="+otp+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+otp2+'" style="width:149px;height:149px;" />')
+                        $("img[data-piece="+otp2+"]")[1].style="width:70%; top:30%; left:30%; position:absolute"
+                      }
+                      else {
+                        board_state[otp] = opponent_color[0] + "Q"
+                      }
+                      console.log(board_state)
+                      board.position(board_state)
+                    }
+                    else if (status === "WAITING_FOR_MOVE") {
+                      board_state[otp] = opponent_color[0] + "Q"
+                      board_state[ocp] = opponent_color[0] + "K"
+                      board_state[ntp] = my_color[0] + "Q"
+                      board_state[ncp] = my_color[0] + "K"
+                      console.log(board_state)
+                      board.position(board_state)
+                    }
+                    
+                    w_spare_circle.style.display="none"
+                    w_spare_triangle.style.display="none"
+                    b_spare_circle.style.display="none"
+                    b_spare_triangle.style.display="none"
                 	},
                   error: function(){
                     console.log("nije proslo");
@@ -273,18 +307,16 @@
       return false
     }
   }
+  
   var config = {    
     numRows: 4,
     numColumns: 4,
     draggable: true,
     dropOffBoard: 'snapback',
     onDragStart: onDragStart,
+    sparePieces: true,
     pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
     position: {
-      b4: 'wK',
-      c4: 'wQ',
-      b1: 'bK',
-      c1: 'bQ'
     }
   }
   var board = Chessboard('board', config)

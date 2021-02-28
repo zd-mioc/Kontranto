@@ -77,10 +77,11 @@ def get_move(request):
     body_unicode = request.body.decode('utf-8')
     jsonFromBody = json.loads(body_unicode)
     game_id = jsonFromBody['game_id']
+    my_color = jsonFromBody['my_color']
     opponent_color = jsonFromBody['opponent_color']
     ntp = jsonFromBody['ntp']
     ncp = jsonFromBody['ncp']
-    return HttpResponse(get_move_f(game_id, opponent_color, ntp, ncp), content_type="application/json")
+    return HttpResponse(get_move_f(game_id, my_color, opponent_color, ntp, ncp), content_type="application/json")
 
 def update_info(request):
     return render(request, "kontranto_igra/board.html")

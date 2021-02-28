@@ -23,12 +23,22 @@
 }
 
 .white-1e1d7 {
-  background-color: #fff;
+  background-color: rgb(172, 229, 255);
   color: #000;
 }
 
 .black-3c85d {
-  background-color: #d2d2d2;
+  background-color: #84b3ff;
+  color: #000;
+}
+
+.black-null {
+  background-color: #070707;
+  color: #000;
+}
+
+.white-null {
+  background-color: #f6f6f6;
   color: #000;
 }
 
@@ -51,4 +61,24 @@
 .numeric-fc462 {
   top: 2px;
   left: 2px;
+}
+
+.spare-pieces-bottom-ae20f {
+  position:absolute;
+  top:35%;
+  left:15%;
+  transform:translate(0,-50%);
+  width: 11.5%;
+  height: 20%;
+  padding: 0px;
+}
+
+.spare-pieces-top-4028b{
+  position:absolute;
+  top:35%;
+  right:15%;
+  transform:translate(0,-50%);
+  width: 11.5%;
+  height: 20%;
+  padding: 0px;
 }

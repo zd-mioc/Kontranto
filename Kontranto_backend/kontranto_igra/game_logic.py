@@ -87,14 +87,20 @@ def game_state_f(game_id, my_color):
     except ObjectDoesNotExist:
         return json.dumps({"status": "Greska: ne postoji igra s tim game_id-em."})
 
-def get_move_f(game_id, opponent_color, ntp, ncp):
+def get_move_f(game_id, my_color, opponent_color, ntp, ncp):
     g = Game.objects.get(game = game_id)
-    m = Move.objects.filter(game_id=g.id).filter(color=opponent_color).order_by('-move_timestamp')[0]
+    mm = Move.objects.filter(game_id=g.id, color=my_color).order_by('-move_timestamp')[0]
+    if g.game_state=="WAITING_FOR_MOVE":
+        mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[0]
+    elif g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
+        mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[1]
     ntp = chr(97+int(ntp[2]))+str(4-int(ntp[0]))
     ncp = chr(97+int(ncp[2]))+str(4-int(ncp[0]))
-    new_triangle_position = chr(97+int(m.triangle_position[4]))+str(4-int(m.triangle_position[1]))
-    new_circle_position = chr(97+int(m.circle_position[4]))+str(4-int(m.circle_position[1]))
-    return json.dumps({"new_triangle_position": new_triangle_position, "new_circle_position": new_circle_position, "ntp": ntp, "ncp": ncp})
+    ntp_m = chr(97+int(mm.triangle_position[4]))+str(4-int(mm.triangle_position[1]))
+    ncp_m = chr(97+int(mm.circle_position[4]))+str(4-int(mm.circle_position[1]))
+    otp = chr(97+int(mo.triangle_position[4]))+str(4-int(mo.triangle_position[1]))
+    ocp = chr(97+int(mo.circle_position[4]))+str(4-int(mo.circle_position[1]))
+    return json.dumps({"ntp": ntp, "ncp": ncp, "otp": otp, "ocp": ocp, "ntp_m": ntp_m, "ncp_m": ncp_m})
 
 # funkcija rotate potrebna unutar funkcije make_move pri provjeri razdvojene ploce
 def rotate(l):
@@ -197,22 +203,22 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         circle2_position=[int(s[1]), int(s[4])]
         # provjeravamo je li doslo do sudara
         collision="none"
-        if m.triangle_position==previous_move.triangle_position and m.circle_position==previous_move.circle_position:
+        if triangle_position==triangle2_position and m.circle_position==circle2_position:
             collision="double_collision_same"
             w_score+=2
-        elif m.triangle_position==previous_move.circle_position and m.circle_position==previous_move.triangle_position:
+        elif triangle_position==circle2_position and m.circle_position==triangle2_position:
             collision="double_collision_different"
             b_score+=2
-        elif m.triangle_position==previous_move.triangle_position:
+        elif triangle_position==triangle2_position:
             collision="triangle_triangle2"
             w_score+=1
-        elif m.circle_position==previous_move.circle_position:
+        elif circle_position==circle2_position:
             collision="circle_circle2"
             w_score+=1
-        elif m.triangle_position==previous_move.circle_position:
+        elif triangle_position==circle2_position:
             collision="triangle_circle2"
             b_score+=1
-        elif m.circle_position==previous_move.triangle_position:
+        elif circle_position==triangle2_position:
             collision="circle_triangle2"
             b_score+=1
         # mijenjamo pozicije igraca na ploci
