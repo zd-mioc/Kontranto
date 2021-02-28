@@ -89,10 +89,13 @@ def game_state_f(game_id, my_color):
 
 def get_move_f(game_id, my_color, opponent_color, ntp, ncp):
     g = Game.objects.get(game = game_id)
-    mm = Move.objects.filter(game_id=g.id, color=my_color).order_by('-move_timestamp')[0]
-    if g.game_state=="WAITING_FOR_MOVE":
+    if g.game_state=="WAITING_FOR_MOVE" or (my_color=="white" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE") or (my_color=="black" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE"):
+        mm = Move.objects.filter(game_id=g.id, color=my_color).order_by('-move_timestamp')[0]
+    elif (my_color=="white" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE") or (my_color=="black" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE"):
+        mm = Move.objects.filter(game_id=g.id, color=my_color).order_by('-move_timestamp')[1]
+    if g.game_state=="WAITING_FOR_MOVE" or (my_color=="white" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE") or (my_color=="black" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE"):
         mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[0]
-    elif g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE" or g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE":
+    elif (my_color=="black" and g.game_state=="WAITING_FOR_BLACK_PLAYER_MOVE") or (my_color=="white" and g.game_state=="WAITING_FOR_WHITE_PLAYER_MOVE"):
         mo = Move.objects.filter(game_id=g.id, color=opponent_color).order_by('-move_timestamp')[1]
     ntp = chr(97+int(ntp[2]))+str(4-int(ntp[0]))
     ncp = chr(97+int(ncp[2]))+str(4-int(ncp[0]))
