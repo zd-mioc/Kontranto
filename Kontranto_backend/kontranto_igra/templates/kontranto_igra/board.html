@@ -7,19 +7,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
     <style>
-    .button1 {
-      position:absolute;
-      border: none;
-      color: black;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      font-size: 30px;
-      right: 7%;
-      top:50%;
-      transform: translate(0, -50%);
-      cursor: pointer
-    }
     .gamedata{
       position:absolute;
       top:7%;
@@ -38,7 +25,8 @@
       'bK':'x',
       'bQ':'x'
     }
-  
+    
+    var btnPressed = false
     var status = '{{status}}';
     $("#game_status").text(status);
     var game_id = '{{game_id}}';
@@ -122,6 +110,19 @@
               status = data["game_state"];
               $("#game_status").text(status);
               $("#opponent_id").text(opponent_id);
+              if (!(status === "WAITING_FOR_WHITE_PLAYER_MOVE" && my_color === "black") && !(status === "WAITING_FOR_BLACK_PLAYER_MOVE" && my_color === "white") && $(".grayedOutButton").attr("class") !== undefined) {
+                $("#button1").attr('class', "okvir");
+                console.log()
+                btnPressed = false
+              //   config["draggable"]=true
+              // }
+              // function onDragStart (source, piece, position, orientation) {
+              //   if ((status === "WAITING_FOR_WHITE_PLAYER" && my_color === "black") || (status === "WAITING_FOR_BLACK_PLAYER" && my_color === "white")) {
+              //     return false
+              //   }
+              // }
+              // config["onDragStart"]=onDragStart
+              }
               if (status === "WAITING_FOR_MOVE" || status === "WAITING_FOR_BLACK_PLAYER_MOVE" || status === "WAITING_FOR_WHITE_PLAYER_MOVE") { //dohvacanje protivnikovog poteza
                 $.ajax({
                   type:"POST",
@@ -199,9 +200,8 @@
                           if (currentArgumentPosition_1 === myArgumentPosition_1) {
                             $("img[data-piece="+board_state[currentArgumentPosition_1]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
                             if ($("div[data-square="+opponentArgumentPosition_1+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:149px;height:149px;" />')
+                              $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:70%;position:absolute" />')
                             }
-                              $("img[data-piece="+collidedOpponentFigure_1+"]")[1].style="width:70%; position:absolute"
                           }
                           else {
                             board_state[opponentArgumentPosition_1] = opponent_color[0] + bs_oAP_1_QorK
@@ -209,9 +209,8 @@
                           if (currentArgumentPosition_2 === myArgumentPosition_2) {
                             $("img[data-piece="+board_state[currentArgumentPosition_2]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
                             if ($("div[data-square="+opponentArgumentPosition_2+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:149px;height:149px;" />')
+                              $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:70%;position:absolute" />')
                             }
-                            $("img[data-piece="+collidedOpponentFigure_2+"]")[1].style="width:70%; position:absolute"
                           }
                           else {
                             board_state[opponentArgumentPosition_2] = opponent_color[0] + bs_oAP_2_QorK
@@ -270,9 +269,8 @@
                           if (currentArgumentPosition === myArgumentPosition) {
                             $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
                             if ($("div[data-square="+opponentArgumentPosition+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:149px;height:149px;" />')
+                              $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:70%;position:absolute" />')
                             }
-                              $("img[data-piece="+collidedOpponentFigure+"]")[1].style="width:70%; position:absolute"
                           }
                           else {
                             board_state[opponentArgumentPosition] = opponent_color[0] + bs_oAP_QorK
@@ -328,80 +326,88 @@
         })
       }
       $("#button1").on('click',function(e){
-        csrf = $("input[name=csrfmiddlewaretoken]").val();   
-        positions=[
-        [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
-        [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
-        [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
-        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
-        ]
-        var i;
+        if (btnPressed === false) {
+          csrf = $("input[name=csrfmiddlewaretoken]").val();
+          positions=[
+          [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
+          [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
+          [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
+          [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
+          ]
+          var i;
 
-        for (i=3; i>-1; i--) {
-          if (positions[i].indexOf('wK') !== -1) {
-            dict['wK'] = [i, positions[i].indexOf('wK')]
-          }
-          if (positions[i].indexOf('wQ') !== -1) {
-            dict['wQ'] = [i, positions[i].indexOf('wQ')]
-          }
-          if (positions[i].indexOf('bK') !== -1) {
-            dict['bK'] = [i, positions[i].indexOf('bK')]
-          }
-          if (positions[i].indexOf('bQ') !== -1) {
-            dict['bQ'] = [i, positions[i].indexOf('bQ')]
-          }
-        }
-        
-        if (my_color === "white") {
-          var mntp = dict['wQ']
-          var mncp = dict['wK']
-        }
-        else {
-          var mntp = dict['bQ']
-          var mncp = dict['bK']
-        }
-        var new_triangle_position = [mntp[0], mntp[1]]
-        var new_circle_position = [mncp[0], mncp[1]]
-        $.ajax({
-          type:"POST",
-          url:"http://127.0.0.1:8000/move",
-          contentType: "application/json; charset=utf-8",
-          headers:{"X-CSRFTOKEN":csrf},
-          dataType: "json",
-          processData: false,
-          data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": "'+new_triangle_position+'", "new_circle_position": "'+new_circle_position+'"}',
-          success: function(data){ 
-            console.log(data)
-            if (data["status"] !== "OK") {
-              if (data["status"] === "Greska: ne mozete pomaknuti obje figure na isto polje.") {
-                board.position()[data["new_triangle_position"]] = undefined
-                board.position()[data["new_circle_position"]] = undefined
-                board.position()[data["triangle0_position"]] = my_color[0] + "Q"
-                board.position()[data["circle0_position"]] = my_color[0] + "K"
-              }
-              else {
-                if (data["triangle0_position"] !=="X") {
-                  board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
-                }
-                if (data["circle0_position"] !=="X") {
-                  board.move(data["new_circle_position"] + "-" + data["circle0_position"])
-                }
-              }
+          for (i=3; i>-1; i--) {
+            if (positions[i].indexOf('wK') !== -1) {
+              dict['wK'] = [i, positions[i].indexOf('wK')]
             }
-          },
-          error: function(){ // A function to be called if the request fails.
-              console.log("nije proslo");
+            if (positions[i].indexOf('wQ') !== -1) {
+              dict['wQ'] = [i, positions[i].indexOf('wQ')]
+            }
+            if (positions[i].indexOf('bK') !== -1) {
+              dict['bK'] = [i, positions[i].indexOf('bK')]
+            }
+            if (positions[i].indexOf('bQ') !== -1) {
+              dict['bQ'] = [i, positions[i].indexOf('bQ')]
+            }
           }
-                  
-        })
+          
+          if (my_color === "white") {
+            var mntp = dict['wQ']
+            var mncp = dict['wK']
+          }
+          else {
+            var mntp = dict['bQ']
+            var mncp = dict['bK']
+          }
+          var new_triangle_position = [mntp[0], mntp[1]]
+          var new_circle_position = [mncp[0], mncp[1]]
+          $.ajax({
+            type:"POST",
+            url:"http://127.0.0.1:8000/move",
+            contentType: "application/json; charset=utf-8",
+            headers:{"X-CSRFTOKEN":csrf},
+            dataType: "json",
+            processData: false,
+            data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": "'+new_triangle_position+'", "new_circle_position": "'+new_circle_position+'"}',
+            success: function(data){ 
+              if (status === "WAITING_FOR_MOVE" || status === "INIT") {
+                $("#button1").attr('class', "okvir grayedOutButton");
+                btnPressed = true
+                //   config["draggable"]=false
+              }
+              console.log(status)
+              config["sparePieces"]=false
+              if (data["status"] !== "OK") {
+                if (data["status"] === "Greska: ne mozete pomaknuti obje figure na isto polje.") {
+                  board.position()[data["new_triangle_position"]] = undefined
+                  board.position()[data["new_circle_position"]] = undefined
+                  board.position()[data["triangle0_position"]] = my_color[0] + "Q"
+                  board.position()[data["circle0_position"]] = my_color[0] + "K"
+                }
+                else {
+                  if (data["triangle0_position"] !=="X") {
+                    board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
+                  }
+                  if (data["circle0_position"] !=="X") {
+                    board.move(data["new_circle_position"] + "-" + data["circle0_position"])
+                  }
+                }
+              }
+            },
+            error: function(){ // A function to be called if the request fails.
+                console.log("nije proslo");
+            }
+                    
+          })
+        }
       })
     })
   </script>
 
 
-<div class = "okvir">
+<div>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
-    <a id="button1" name="Potvrdi potez" type="submit">Potvrdi potez</a>
+    <a id="button1" class = "okvir" name="Potvrdi potez" type="submit">Potvrdi potez</a>
 </div>
 
 <!-- IZMJENE -->

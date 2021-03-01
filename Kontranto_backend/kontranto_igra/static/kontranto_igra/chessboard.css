@@ -102,9 +102,35 @@
   font-size: 2vw;
   transition: 0.35s
 }
-a:hover, .okvir:hover{
+.okvir:hover{
   color:#fff;
   background-color: #1ddadd;
   transition: 0.35s;
   cursor: pointer
+}
+
+.okvir:active{
+  color:#fff;
+  background-color: #1ddadd;
+  cursor: pointer;
+  transform: scale(0.98);
+  box-shadow: 2px 2px 5px grey;
+  transition: 0.1s
+}
+
+.grayedOutButton {
+  color: #c7ecec;
+  background-color:#63c5c9;
+  opacity: 0.6;
+  transform: scale(0.98);
+  box-shadow: 2px 2px 5px grey;
+  cursor: not-allowed;
+  transition: 0.35s
+}
+
+.grayedOutButton:hover{
+  color: #c7ecec;
+  background-color:#63c5c9;
+  opacity: 0.6;
+  cursor: not-allowed
 }
