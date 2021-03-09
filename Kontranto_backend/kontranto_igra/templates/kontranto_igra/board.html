@@ -12,7 +12,7 @@
       top:7%;
       transform:translate(0,-50%)
     }
-    </style> 
+    </style>
 </head>
 
 <body>
@@ -25,7 +25,7 @@
       'bK':'x',
       'bQ':'x'
     }
-    
+
     var btnPressed = false
     var status = '{{status}}';
     $("#game_status").text(status);
@@ -68,7 +68,7 @@
         [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
         [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
         [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
-        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
+        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]
         ]
         var i;
 
@@ -86,7 +86,7 @@
             dict['bQ'] = [i, positions[i].indexOf('bQ')]
           }
         }
-        
+
         if (my_color === "white") {
           var ntp = dict['wQ']
           var ncp = dict['wK']
@@ -99,7 +99,7 @@
         // console.log(ncp)
         $.ajax({
           type:"POST",
-          url:"http://127.0.0.1:8000/game_state",
+          url:"/game_state",
           contentType: "application/json; charset=utf-8",
           headers:{"X-CSRFTOKEN":csrf},
           dataType: "json",
@@ -126,7 +126,7 @@
               if (status === "WAITING_FOR_MOVE" || status === "WAITING_FOR_BLACK_PLAYER_MOVE" || status === "WAITING_FOR_WHITE_PLAYER_MOVE") { //dohvacanje protivnikovog poteza
                 $.ajax({
                   type:"POST",
-                  url:"http://127.0.0.1:8000/get_move",
+                  url:"/get_move",
                   contentType: "application/json; charset=utf-8",
                   headers:{"X-CSRFTOKEN":csrf},
                   dataType: "json",
@@ -155,12 +155,12 @@
                         var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
                         var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
                       }
-                      
+
                       var board_state = {}
-                      
+
                       if (otp === ntp_m || ocp === ncp_m || otp === ncp_m || ocp === ntp_m) {
                         if ((otp === ntp_m && ocp === ncp_m) || (otp === ncp_m && ocp === ntp_m)) {
-                          if (otp === ntp_m && ocp === ncp_m) { 
+                          if (otp === ntp_m && ocp === ncp_m) {
                             var opponentArgumentPosition_1 = otp
                             var opponentArgumentPosition_2 = ocp
                             var currentArgumentPosition_1 = ntp
@@ -288,7 +288,7 @@
                         console.log(board_state)
                         board.position(board_state)
                       }
-                      
+
                       w_spare_circle.style.display="none"
                       w_spare_triangle.style.display="none"
                       b_spare_circle.style.display="none"
@@ -299,30 +299,30 @@
                     console.log("nije proslo");
                   }
                 })
-                
+
               }
               // $.ajax({
               //   type:"POST",
-              //   url:"http://127.0.0.1:8000/update_info",
+              //   url:"/update_info",
               //   contentType: "application/json; charset=utf-8",
               //   headers:{"X-CSRFTOKEN":csrf},
               //   dataType: "json",
               //   processData: false,
               //   data: '{"status": "'+status+'", "game_id": "'+game_id+'", "my_id": "'+my_id+'", "opponent_id": "'+opponent_id+'", "my_color": "'+my_color+'"}',
-              //   success: function(data){ 
+              //   success: function(data){
               //       //form.submit();
               //       opponent_id = data["opponent_id"];
               //       console.log(opponent_id);
               //   },
               //   error: function(){ // A function to be called if the request fails.
               //       console.log("nije proslo");
-              //   }  
+              //   }
               // })
           },
           error: function(){ // A function to be called if the request fails.
               console.log("nije proslo");
           }
-                  
+
         })
       }
       $("#button1").on('click',function(e){
@@ -332,7 +332,7 @@
           [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
           [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
           [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
-          [board.position().a1, board.position().b1, board.position().c1, board.position().d1]    
+          [board.position().a1, board.position().b1, board.position().c1, board.position().d1]
           ]
           var i;
 
@@ -350,7 +350,7 @@
               dict['bQ'] = [i, positions[i].indexOf('bQ')]
             }
           }
-          
+
           if (my_color === "white") {
             var mntp = dict['wQ']
             var mncp = dict['wK']
@@ -363,13 +363,13 @@
           var new_circle_position = [mncp[0], mncp[1]]
           $.ajax({
             type:"POST",
-            url:"http://127.0.0.1:8000/move",
+            url:"/move",
             contentType: "application/json; charset=utf-8",
             headers:{"X-CSRFTOKEN":csrf},
             dataType: "json",
             processData: false,
             data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": "'+new_triangle_position+'", "new_circle_position": "'+new_circle_position+'"}',
-            success: function(data){ 
+            success: function(data){
               if (status === "WAITING_FOR_MOVE" || status === "INIT") {
                 $("#button1").attr('class', "okvir grayedOutButton");
                 btnPressed = true
@@ -397,7 +397,7 @@
             error: function(){ // A function to be called if the request fails.
                 console.log("nije proslo");
             }
-                    
+
           })
         }
       })
@@ -417,8 +417,8 @@
   <span id="game_status"></span> <br>
   Game_id: {{game_id}} <br>
   Igrač: {{my_id}} <br>
-  Boja: {{my_color}} <br> 
-  Suparnik: <span id="opponent_id"></span> <br> 
+  Boja: {{my_color}} <br>
+  Suparnik: <span id="opponent_id"></span> <br>
 </div>
 
 <div id="board", style="width: 46.6%; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>
@@ -432,8 +432,8 @@
       return false
     }
   }
-  
-  var config = {    
+
+  var config = {
     numRows: 4,
     numColumns: 4,
     draggable: true,

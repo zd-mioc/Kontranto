@@ -15,7 +15,7 @@
                 <button name=button1 type="submit">Kreiraj igru</button>
             </form>
         </div>
-        
+
         <div class = "okvir">
             <form id=form2 name=form2 action="/show_board" method="post">
                 {% csrf_token %}
@@ -39,7 +39,7 @@
                     player_id =  $(this).find("input[name=player_id]").val();
                     $.ajax({
                         type:"POST",
-                        url:"http://127.0.0.1:8000/new_game",
+                        url:"/new_game",
                         contentType: "application/json; charset=utf-8",
                         headers:{"X-CSRFTOKEN":csrf},
                         dataType: "json",
@@ -52,12 +52,12 @@
                         error: function(){ // A function to be called if the request fails.
                             console.log("nije proslo");
                         }
-                            
+
                     })
                 })
             })
         </script>
-        
+
         <script>
             $(document).ready(function() {
                 $("#form2").on('submit',function(e){
@@ -70,19 +70,19 @@
 
                     $.ajax({
                         type:"POST",
-                        url:"http://127.0.0.1:8000/join_game",
+                        url:"/join_game",
                         contentType: "application/json; charset=utf-8",
                         headers:{"X-CSRFTOKEN":csrf},
                         dataType: "json",
                         processData: false,
                         data: '{"game_id": "'+game_id+'","player_id": "'+player_id+'"}',
-                        success: function(data){ 
+                        success: function(data){
                             form.submit();
                         },
                         error: function(){ // A function to be called if the request fails.
                             console.log("nije proslo");
                         }
-                            
+
                     })
                 })
             })
