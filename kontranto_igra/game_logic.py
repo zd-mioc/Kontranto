@@ -18,9 +18,9 @@ def new_game_f(player_id):
     game_id = "".join(choice(string.ascii_letters + string.digits) for i in range(10))
     color_1 = BlackOrWhite('')
     if color_1 == 'black':
-        g = Game.objects.create(game = game_id, game_state = "WAITING_FOR_SECOND_PLAYER", white_score = 0, black_score = 0, board = [["","","",""], ["","","",""], ["","","",""], ["","","",""]], black_player_id = player_id)
+        g = Game.objects.create(game = game_id, game_state = "WAITING_FOR_SECOND_PLAYER", white_score = 0, black_score = 0, board = [["","","",""], ["","","",""], ["","","",""], ["","","",""]], black_player_id = player_id, white_player_id = "")
     else:
-        g = Game.objects.create(game = game_id, game_state = "WAITING_FOR_SECOND_PLAYER", white_score = 0, black_score = 0, board = [["","","",""], ["","","",""], ["","","",""], ["","","",""]], white_player_id = player_id)
+        g = Game.objects.create(game = game_id, game_state = "WAITING_FOR_SECOND_PLAYER", white_score = 0, black_score = 0, board = [["","","",""], ["","","",""], ["","","",""], ["","","",""]], white_player_id = player_id, black_player_id = "")
     new_game_f_resp = {
         "status": "Waiting for second player",
         "game_id": game_id,
@@ -216,7 +216,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
 
     m=Move.objects.create(game_id=g.id, color=player_color, triangle_position=new_triangle_position, circle_position=new_circle_position, move_timestamp=timezone.now())
     g.save()
-    
+
     if g.game_state=="INIT" or g.game_state=="WAITING_FOR_MOVE":
         if player_color=="white":
             g.game_state="WAITING_FOR_BLACK_PLAYER_MOVE"
@@ -296,7 +296,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
                 g.board[circle00_position[0]][circle00_position[1]]="BX"
             else:
                 g.board[circle00_position[0]][circle00_position[1]]=""
-        
+
         if collision=="double_collision_same":
             g.board[triangle_position[0]][triangle_position[1]]="WX,WT,BT"
             g.board[circle_position[0]][circle_position[1]]="WX,WC,BC"
@@ -377,7 +377,7 @@ def make_move (game_id, player_id, new_triangle_position, new_circle_position):
         #                     return json.dumps({"status": "Greska: prijasnja pozicija ne smije biti ponovljena; oba igraca igraju ponovno"})
         #             i+=1
         # m.null_fields=null_fields
-        
+
         g.white_score=w_score
         g.black_score=b_score
         g.save()
