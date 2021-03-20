@@ -1,5 +1,6 @@
 body {
-    background-image: url("pozadina2trans.png");
+    /* TODO: popravi. Datoteka ne postoji.
+     * background-image: url("pozadina2trans.png"); */
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
@@ -11,7 +12,7 @@ img {
     margin-bottom: 8%;
     margin-right: auto;
     margin-left: auto;
-    height: 300px; 
+    height: 300px;
 }
 /* p {
     color: #000;
@@ -33,7 +34,7 @@ img {
 p:hover{
     color:#fff;
     background-color: #229418;
-    transition: 0.35s  
+    transition: 0.35s
 } */
 
 .pov_na_poc {
@@ -81,7 +82,7 @@ p:hover{
 a:hover {
     color:#fff;
     background-color: #1ddadd;
-    transition: 0.35s  
+    transition: 0.35s
 }
 
 /* a{  color: #ffffff;
@@ -106,7 +107,7 @@ a:hover {
 /* a:hover{
     color:#fff;
     background-color: rgb(144, 8, 215);
-    transition: 0.35s  
+    transition: 0.35s
 } */
 
 .text {
@@ -119,7 +120,8 @@ a:hover {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    background-image: url("pozadinael.png");
+    /* TODO: popravi. Datoteka ne postoji.
+     * background-image: url("pozadinael.png"); */
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -158,7 +160,8 @@ a:hover {
     margin-bottom: 0%;
     margin-left: auto;
     margin-right: auto;
-    background-image: url("pozadinael.png");
+    /* TODO: popravi. Datoteka ne postoji.
+     * background-image: url("pozadinael.png"); */
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -176,7 +179,8 @@ a:hover {
     display: block;
     margin-left: 55%;
     margin-top: 0%;
-    background-image: url("pozadinael.png");
+    /* TODO: popravi. Datoteka ne postoji.
+     * background-image: url("pozadinael.png"); */
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -194,7 +198,8 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 5px;
-    background-image: url("pozadinael.png");
+    /* TODO: popravi. Datoteka ne postoji.
+     * background-image: url("pozadinael.png"); */
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
