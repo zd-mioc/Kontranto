@@ -1,6 +1,5 @@
 body {
-    /* TODO: popravi. Datoteka ne postoji.
-     * background-image: url("pozadina2trans.png"); */
+    background-image: url("pozadina2trans.png");
     background-position: center;
     background-size: cover;
     background-attachment: fixed;
@@ -120,8 +119,7 @@ a:hover {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    /* TODO: popravi. Datoteka ne postoji.
-     * background-image: url("pozadinael.png"); */
+    background-image: url("pozadinael.png");
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -160,8 +158,7 @@ a:hover {
     margin-bottom: 0%;
     margin-left: auto;
     margin-right: auto;
-    /* TODO: popravi. Datoteka ne postoji.
-     * background-image: url("pozadinael.png"); */
+    background-image: url("pozadinael.png");
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -179,8 +176,7 @@ a:hover {
     display: block;
     margin-left: 55%;
     margin-top: 0%;
-    /* TODO: popravi. Datoteka ne postoji.
-     * background-image: url("pozadinael.png"); */
+    background-image: url("pozadinael.png");
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
@@ -198,8 +194,7 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 5px;
-    /* TODO: popravi. Datoteka ne postoji.
-     * background-image: url("pozadinael.png"); */
+    background-image: url("pozadinael.png");
     background-size: cover;
     background-attachment: fixed;
     border-radius: 0px;
