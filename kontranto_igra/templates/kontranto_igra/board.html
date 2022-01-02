@@ -99,12 +99,12 @@
         // console.log(ncp)
         $.ajax({
           type:"POST",
-          url:"/game_state",
+          url:"/game_state/"+ game_id + "/"+my_id,
           contentType: "application/json; charset=utf-8",
           headers:{"X-CSRFTOKEN":csrf},
           dataType: "json",
           processData: false,
-          data: '{"game_id": "'+game_id+'", "my_color": "'+my_color+'"}',
+          //data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'"}',
           success: function(data){
               opponent_id = data["opponent_id"];
               status = data["game_state"];

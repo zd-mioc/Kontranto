@@ -1,90 +1,100 @@
-from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpRequest, request, response
-from django.http import HttpResponse
-from django.template import loader, RequestContext
-from django.middleware.csrf import get_token
-from kontranto_igra.game_logic import new_game_f, check_game_new, join_game_f, check_game_join, game_state_f, get_move_f, make_move
 import json
+import logging
+import dataclasses
 
+from typing import Tuple, List
+
+from django.shortcuts import render, redirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse, HttpRequest, request, response
+from django.template import loader, RequestContext
+from django.middleware import csrf
+
+from kontranto_igra import game_logic, forms
+
+logger = logging.getLogger(__name__)
+
+def _to_json_response(response: game_logic.GameResponse) -> HttpResponse:
+  """Returns the input dict wrapped as JSON in the HTTP response."""
+  return HttpResponse(json.dumps(dataclasses.asdict(response)), content_type="application/json")
 
 def index(request):
-    return render(request, "kontranto_igra/homepage.html")
+  """Renders the index page."""
+  new_game_form = forms.NewGameForm()
+  join_game_form = forms.JoinGameForm()
+  return render(request, "kontranto_igra/index.html", {'new_game_form': new_game_form, 'join_game_form': join_game_form})
 
-def pravila(request):
-    return render(request, "kontranto_igra/pravila.html")
 
-def show_board(request): #tek ako je "status": "OK" kod new/join poziv ide ovdje
-    game_id = request.POST.get("game_id")
-    player_id = request.POST.get("player_id")
-    csrf_token = get_token(request)
-    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-    if game_id == "to_be_set": #ide na new_game opciju
-        template = loader.get_template("kontranto_igra/board.html")
-        newgamedata = new_game_f(player_id)
-        response_body = template.render({"status" : newgamedata["status"], "game_id": newgamedata["game_id"], "my_id": player_id, "my_color" : newgamedata["my_color"], "csrf" : csrf_token})
-        return HttpResponse(response_body)
-    else: #ide na join_game opciju
-        template = loader.get_template("kontranto_igra/board.html")
-        joingamedata = join_game_f(game_id, player_id)
-        response_body = template.render({"status" : joingamedata["status"], "game_id": game_id, "my_id": joingamedata["my_id"], "my_color" : joingamedata["my_color"], "csrf": csrf_token})
-        # context_instance=RequestContext(request))
-        return HttpResponse(response_body)
+def game_rules(request):
+  """Renders the game rules page."""
+  return render(request, "kontranto_igra/pravila.html")
 
+
+# TODO: remove?
+def _get_user_input(request_body: bytes, required_fields: List[str] = []) -> Tuple[game_logic.UserInput, HttpResponse]:
+  """Parses the request body and returns (UserInput, ErrorResponse).
+
+  In case of invalid user input, error HTTP Response is returned.
+  """
+  def _error_response(error_message: str):
+    return (None, _to_json_response(game_logic.GameResponse.from_error(error_message)))
+
+  try:
+    request_data = json.loads(request_body.decode('utf-8'))
+  except Exception as e:
+    logger.debug("Failed to parse JSON from: {request_body}")
+    return _error_response("Invalid request!")
+
+  # TODO: replace player_id with the player login
+  missing_req_fields = []
+  for f in required_fields:
+    if f not in game_logic.UserInput.__annotations__.keys():
+      logger.error("UserInput doesn't contain field '{f}''.")
+      return _error_response("Internal error")
+    if f not in request_data:
+      missing_req_fields.append(f)
+  if missing_req_fields:
+    return _error_response("Missing required fields: %s" % ", ".join(missing_req_fields))
+  return (game_logic.UserInput.from_dict(request_data), None)
 
 def new_game(request):
-    body_unicode = request.body.decode('utf-8')
-    jsonFromBody = json.loads(body_unicode)
-    player_id = jsonFromBody['player_id']
-    # player_id = request.POST.get("player_id") - ne radi
-    new_game_resp = check_game_new(player_id) #prvo radi provjeru
-    if new_game_resp["status"] == "OK": #ako je provjera prosla, salje ispravan json
-        return HttpResponse(json.dumps(new_game_resp), content_type="application/json")
-    else: #inace salje krivi, pa se poziv ne moze poslati
-        return HttpResponse(new_game_resp, content_type="application/json")
+  """Creates a new game and renders the board."""
+  if request.method == 'POST':
+    new_game_form = forms.NewGameForm(request.POST)
+    if new_game_form.is_valid():
+      # TODO: get the player_id from the auth context
+      player_id = new_game_form.cleaned_data['player_id']
+      gr = game_logic.create_game(player_id)
+      return redirect("show_board", game_id=gr.game_id, player_id=player_id)
+  # TODO: handle the error
+  return redirect("")
 
 def join_game(request):
-    body_unicode = request.body.decode('utf-8')
-    jsonFromBody = json.loads(body_unicode)
-    game_id = jsonFromBody['game_id']
-    player_id = jsonFromBody['player_id']
-    get_game_resp = check_game_join(game_id, player_id) #prvo radi provjeru
-    if get_game_resp["status"] == "OK": #ako je provjera prosla, salje ispravan json
-        return HttpResponse(json.dumps(get_game_resp), content_type="application/json")
-    else: #inace salje krivi, pa se poziv ne moze poslati
-        return HttpResponse(get_game_resp, content_type="application/json")
+  """Joins a new player to the game."""
+  if request.method == 'POST':
+    join_game_form = forms.JoinGameForm(request.POST)
+    if join_game_form.is_valid():
+      # TODO: get the player_id from the auth context
+      player_id = join_game_form.cleaned_data['player_id']
+      gr = game_logic.join_game(player_id, join_game_form.cleaned_data['game_id'])
+      return redirect("show_board", game_id=gr.game_id, player_id=player_id)
+  # TODO: handle the error
+  return redirect("")
 
-def prijelaz(request):
-    return render(request, "kontranto_igra/prijelaz.html")
+def show_board(request, game_id, player_id):
+  """Renders the Kontranto board for the given game."""
+  # TODO: get the player_id from the auth context
+  gr = game_logic.get_game_state(player_id, game_id)
+  template = loader.get_template("kontranto_igra/board.html")
+  response_body = template.render({"status" : gr.game_state, "game_id": gr.game_id, "my_id": player_id, "my_color" : gr.current_player_color, "csrf": csrf.get_token(request)})
+  # TODO: properly pass the context
+  # context_instance=RequestContext(request))
+  return HttpResponse(response_body)
 
 def move(request):
-    # body_unicode = request.body.decode('utf-8')
-    # jsonFromBody = json.loads(body_unicode)
-    jsonFromBody = json.loads(request.body)
-    game_id = jsonFromBody['game_id']
-    player_id = jsonFromBody['player_id']
-    new_triangle_position = jsonFromBody['new_triangle_position']
-    new_circle_position = jsonFromBody['new_circle_position']
-    return HttpResponse(make_move(game_id, player_id, new_triangle_position, new_circle_position), content_type="application/json")
+  return None
 
-def game_state(request): #uzimamo state, id od drugog igraca
-    body_unicode = request.body.decode('utf-8')
-    jsonFromBody = json.loads(body_unicode)
-    # jsonFromBody = json.loads(request.body)
-    game_id = jsonFromBody['game_id']
-    my_color = jsonFromBody['my_color']
-    return HttpResponse(game_state_f(game_id, my_color), content_type="application/json")
-
-def get_move(request):
-    # body_unicode = request.body.decode('utf-8')
-    # jsonFromBody = json.loads(body_unicode)
-    jsonFromBody = json.loads(request.body)
-    game_id = jsonFromBody['game_id']
-    my_color = jsonFromBody['my_color']
-    opponent_color = jsonFromBody['opponent_color']
-    ntp = jsonFromBody['ntp']
-    ncp = jsonFromBody['ncp']
-    return HttpResponse(get_move_f(game_id, my_color, opponent_color, ntp, ncp), content_type="application/json")
-
-def update_info(request):
-    return render(request, "kontranto_igra/board.html")
+def game_state(request, game_id, player_id):
+  """Returns the current state of the game (e.g. the board & the score)."""
+  gr = game_logic.get_game_state(player_id, game_id)
+  return _to_json_response(gr)

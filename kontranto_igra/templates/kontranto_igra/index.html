@@ -1,0 +1,27 @@
+{% load static %}
+<hmtl>
+    <head>
+        <title>Kontranto</title>
+        <link rel="stylesheet" href="{% static "kontranto_igra/style.css" %}">
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+    <body>
+        <img src="{% static "kontranto_igra/images/logo1.png" %}" alt="logo1">
+        <div class = "okvir">
+            <form id=form1 name=form1 action="/new_game" method="post">
+                {% csrf_token %}
+                {{ new_game_form }}
+                <button type="submit">Kreiraj igru</button>
+            </form>
+        </div>
+
+        <div class = "okvir">
+            <form id=form2 name=form2 action="/join_game" method="post">
+                {% csrf_token %}
+                {{ join_game_form }}
+                <button type="submit">Pridruži se igri</button>
+            </form>
+        </div>
+
+        <a href="./rules">PRAVILA</a>
+    </body>
+</html>
