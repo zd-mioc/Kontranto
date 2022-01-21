@@ -21,6 +21,7 @@ class GameState(enum.Enum):
 
 
 def default_board():
+  """Content of the new (empty) board."""
   return [[""]*4]*4
 
 class Game(models.Model):

@@ -4,7 +4,6 @@
     <title>Kontranto</title>
     <link rel="stylesheet" href="{% static "kontranto_igra/chessboard.css" %}">
     <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
 
     <style>
     .gamedata{
@@ -17,443 +16,192 @@
 
 <body>
 
-  <script>
-
-    var dict = {
-      'wK':'x',
-      'wQ':'x',
-      'bK':'x',
-      'bQ':'x'
-    }
-
-    var btnPressed = false
-    var status = '{{status}}';
-    $("#game_status").text(status);
-    var game_id = '{{game_id}}';
-    var my_id = '{{my_id}}';
-    var my_color = '{{my_color}}';
-    if (my_color === "white") {
-      var opponent_color = "black"
-    }
-    else {
-      var opponent_color = "white"
-    }
-    var csrf = '{{ csrf }}';
-
-    var dict = {
-      'wK':'x',
-      'wQ':'x',
-      'bK':'x',
-      'bQ':'x'
-    }
-
-// <div class="button2">
-// <button id = "test" name = "test">Test</button>
-// </div>
-
-// $('#test').on('click', $('#a8-25fa-4f5d-ccb7-cae9-67b7-9fdf-1274-035d').attr("class", "square-55d63 black-3c85d square-a8"))
-
-    var opponent_id = ""
-
-    $(document).ready(function() {
-      // console.log($("#button1"))
-      // console.log($('#' + squareElsIds['a3']))
-      if (my_color === "black") {
-        board.flip()
-      }
-
-      var provjera = setInterval(myTimer, 1000);
-      function myTimer() {
-        positions=[
-        [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
-        [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
-        [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
-        [board.position().a1, board.position().b1, board.position().c1, board.position().d1]
-        ]
-        var i;
-
-        for (i=3; i>-1; i--) {
-          if (positions[i].indexOf('wK') !== -1) {
-            dict['wK'] = [i, positions[i].indexOf('wK')]
-          }
-          if (positions[i].indexOf('wQ') !== -1) {
-            dict['wQ'] = [i, positions[i].indexOf('wQ')]
-          }
-          if (positions[i].indexOf('bK') !== -1) {
-            dict['bK'] = [i, positions[i].indexOf('bK')]
-          }
-          if (positions[i].indexOf('bQ') !== -1) {
-            dict['bQ'] = [i, positions[i].indexOf('bQ')]
-          }
-        }
-
-        if (my_color === "white") {
-          var ntp = dict['wQ']
-          var ncp = dict['wK']
-        }
-        else {
-          var ntp = dict['bQ']
-          var ncp = dict['bK']
-        }
-        // console.log(ntp)
-        // console.log(ncp)
-        $.ajax({
-          type:"POST",
-          url:"/game_state/"+ game_id + "/"+my_id,
-          contentType: "application/json; charset=utf-8",
-          headers:{"X-CSRFTOKEN":csrf},
-          dataType: "json",
-          processData: false,
-          //data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'"}',
-          success: function(data){
-              opponent_id = data["opponent_id"];
-              status = data["game_state"];
-              $("#game_status").text(status);
-              $("#opponent_id").text(opponent_id);
-              if (!(status === "WAITING_FOR_WHITE_PLAYER_MOVE" && my_color === "black") && !(status === "WAITING_FOR_BLACK_PLAYER_MOVE" && my_color === "white") && $(".grayedOutButton").attr("class") !== undefined) {
-                $("#button1").attr('class', "okvir");
-                console.log()
-                btnPressed = false
-              //   config["draggable"]=true
-              // }
-              // function onDragStart (source, piece, position, orientation) {
-              //   if ((status === "WAITING_FOR_WHITE_PLAYER" && my_color === "black") || (status === "WAITING_FOR_BLACK_PLAYER" && my_color === "white")) {
-              //     return false
-              //   }
-              // }
-              // config["onDragStart"]=onDragStart
-              }
-              if (status === "WAITING_FOR_MOVE" || status === "WAITING_FOR_BLACK_PLAYER_MOVE" || status === "WAITING_FOR_WHITE_PLAYER_MOVE") { //dohvacanje protivnikovog poteza
-                $.ajax({
-                  type:"POST",
-                  url:"/get_move",
-                  contentType: "application/json; charset=utf-8",
-                  headers:{"X-CSRFTOKEN":csrf},
-                  dataType: "json",
-                  processData: false,
-                  // data: '{"game_id": "'+game_id+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
-                  data: '{"game_id": "'+game_id+'", "my_color": "'+my_color+'", "opponent_color": "'+opponent_color+'", "ntp": "'+ntp+'", "ncp": "'+ncp+'"}',
-                  success: function(data){
-                    console.log("proslo");
-                    if (data["otp"] !== "null"){
-                      var otp = data["otp"]
-                      var ocp = data["ocp"]
-                      var ntp = data["ntp"]
-                      var ncp = data["ncp"]
-                      var ntp_m = data["ntp_m"]
-                      var ncp_m = data["ncp_m"]
-
-                      if (my_color === "black") {
-                        var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
-                        var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
-                        var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
-                        var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
-                      }
-                      else {
-                        var b_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[0]
-                        var b_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-top-4028b'")[0].children[1]
-                        var w_spare_circle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[0]
-                        var w_spare_triangle = $("div[class='spare-pieces-7492f spare-pieces-bottom-ae20f'")[0].children[1]
-                      }
-
-                      var board_state = {}
-
-                      if (otp === ntp_m || ocp === ncp_m || otp === ncp_m || ocp === ntp_m) {
-                        if ((otp === ntp_m && ocp === ncp_m) || (otp === ncp_m && ocp === ntp_m)) {
-                          if (otp === ntp_m && ocp === ncp_m) {
-                            var opponentArgumentPosition_1 = otp
-                            var opponentArgumentPosition_2 = ocp
-                            var currentArgumentPosition_1 = ntp
-                            var currentArgumentPosition_2 = ncp
-                            var myArgumentPosition_1 = ntp_m
-                            var myArgumentPosition_2 = ncp_m
-                            var clrchng = "white-null"
-                            var bs_oAP_1_QorK = "Q"
-                            var bs_oAP_2_QorK = "K"
-                            var cOP_1_QorK = "Q"
-                            var cOP_2_QorK = "K"
-                          }
-                          else if (otp === ncp_m && ocp === ntp_m) {
-                            var opponentArgumentPosition_1 = otp
-                            var opponentArgumentPosition_2 = ocp
-                            var currentArgumentPosition_1 = ncp
-                            var currentArgumentPosition_2 = ntp
-                            var myArgumentPosition_1 = ncp_m
-                            var myArgumentPosition_2 = ntp_m
-                            var clrchng = "black-null"
-                            var bs_oAP_1_QorK = "Q"
-                            var bs_oAP_2_QorK = "K"
-                            var cOP_1_QorK = "Q"
-                            var cOP_2_QorK = "K"
-                          }
-
-                          board_state[ncp] = my_color[0] + "K"
-                          board_state[ntp] = my_color[0] + "Q"
-                          var collidedOpponentFigure_1 = opponent_color[0] + cOP_1_QorK
-                          var collidedOpponentFigure_2 = opponent_color[0] + cOP_2_QorK
-                          imgsrc_1 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_1 + ".png"
-                          imgsrc_2 = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure_2 + ".png"
-                          var cls_1 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_1
-                          var cls_2 = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition_2
-                          $("div[data-square="+opponentArgumentPosition_1+"]").attr('class', cls_1);
-                          $("div[data-square="+opponentArgumentPosition_2+"]").attr('class', cls_2);
-                          if (currentArgumentPosition_1 === myArgumentPosition_1) {
-                            $("img[data-piece="+board_state[currentArgumentPosition_1]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                            if ($("div[data-square="+opponentArgumentPosition_1+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition_1+"]").prepend('<img src="'+imgsrc_1+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_1+'" style="width:70%;position:absolute" />')
-                            }
-                          }
-                          else {
-                            board_state[opponentArgumentPosition_1] = opponent_color[0] + bs_oAP_1_QorK
-                          }
-                          if (currentArgumentPosition_2 === myArgumentPosition_2) {
-                            $("img[data-piece="+board_state[currentArgumentPosition_2]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                            if ($("div[data-square="+opponentArgumentPosition_2+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition_2+"]").prepend('<img src="'+imgsrc_2+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure_2+'" style="width:70%;position:absolute" />')
-                            }
-                          }
-                          else {
-                            board_state[opponentArgumentPosition_2] = opponent_color[0] + bs_oAP_2_QorK
-                          }
-                          console.log(board_state)
-                          board.position(board_state)
-                        }
-                        else {
-                          if (otp === ntp_m) {
-                            var opponentArgumentPosition = otp
-                            var currentArgumentPosition = ntp
-                            var myArgumentPosition = ntp_m
-                            var freeOpponentPosition = ocp
-                            var clrchng = "white-null"
-                            var fOP_QorK = "K"
-                            var bs_oAP_QorK = "Q"
-                            var cOP_QorK = "Q"
-                          }
-                          else if (ocp === ncp_m) {
-                            var opponentArgumentPosition = ocp
-                            var currentArgumentPosition = ncp
-                            var myArgumentPosition = ncp_m
-                            var freeOpponentPosition = otp
-                            var clrchng = "white-null"
-                            var fOP_QorK = "Q"
-                            var bs_oAP_QorK = "K"
-                            var cOP_QorK = "K"
-                          }
-                          else if (otp === ncp_m) {
-                            var opponentArgumentPosition = otp
-                            var currentArgumentPosition = ncp
-                            var myArgumentPosition = ncp_m
-                            var freeOpponentPosition = ocp
-                            var clrchng = "black-null"
-                            var fOP_QorK = "K"
-                            var bs_oAP_QorK = "Q"
-                            var cOP_QorK = "Q"
-                          }
-                          else if (ocp == ntp_m) {
-                            var opponentArgumentPosition = ocp
-                            var currentArgumentPosition = ntp
-                            var myArgumentPosition = ntp_m
-                            var freeOpponentPosition = otp
-                            var clrchng = "black-null"
-                            var fOP_QorK = "Q"
-                            var bs_oAP_QorK = "K"
-                            var cOP_QorK = "K"
-                          }
-                          board_state[freeOpponentPosition] = opponent_color[0] + fOP_QorK
-                          board_state[ncp] = my_color[0] + "K"
-                          board_state[ntp] = my_color[0] + "Q"
-                          var collidedOpponentFigure = opponent_color[0] + cOP_QorK
-                          imgsrc = "/static/kontranto_igra/images/chesspieces/wikipedia/" + collidedOpponentFigure + ".png"
-                          var cls = "square-55d63 " + clrchng + " square-" + opponentArgumentPosition
-                          $("div[data-square="+opponentArgumentPosition+"]").attr('class', cls);
-                          if (currentArgumentPosition === myArgumentPosition) {
-                            $("img[data-piece="+board_state[currentArgumentPosition]+"]")[0].style="width:70%; top:30%; left:30%; position:relative"
-                            if ($("div[data-square="+opponentArgumentPosition+"] img").length === 1) {
-                              $("div[data-square="+opponentArgumentPosition+"]").prepend('<img src="'+imgsrc+'" alt="" class="piece-417db" data-piece="'+collidedOpponentFigure+'" style="width:70%;position:absolute" />')
-                            }
-                          }
-                          else {
-                            board_state[opponentArgumentPosition] = opponent_color[0] + bs_oAP_QorK
-                          }
-                          console.log(board_state)
-                          board.position(board_state)
-                        }
-                      }
-
-                      else if (status === "WAITING_FOR_MOVE") {
-                        board_state[otp] = opponent_color[0] + "Q"
-                        board_state[ocp] = opponent_color[0] + "K"
-                        board_state[ntp] = my_color[0] + "Q"
-                        board_state[ncp] = my_color[0] + "K"
-                        console.log(board_state)
-                        board.position(board_state)
-                      }
-
-                      w_spare_circle.style.display="none"
-                      w_spare_triangle.style.display="none"
-                      b_spare_circle.style.display="none"
-                      b_spare_triangle.style.display="none"
-                    }
-                	},
-                  error: function(){
-                    console.log("nije proslo");
-                  }
-                })
-
-              }
-              // $.ajax({
-              //   type:"POST",
-              //   url:"/update_info",
-              //   contentType: "application/json; charset=utf-8",
-              //   headers:{"X-CSRFTOKEN":csrf},
-              //   dataType: "json",
-              //   processData: false,
-              //   data: '{"status": "'+status+'", "game_id": "'+game_id+'", "my_id": "'+my_id+'", "opponent_id": "'+opponent_id+'", "my_color": "'+my_color+'"}',
-              //   success: function(data){
-              //       //form.submit();
-              //       opponent_id = data["opponent_id"];
-              //       console.log(opponent_id);
-              //   },
-              //   error: function(){ // A function to be called if the request fails.
-              //       console.log("nije proslo");
-              //   }
-              // })
-          },
-          error: function(){ // A function to be called if the request fails.
-              console.log("nije proslo");
-          }
-
-        })
-      }
-      $("#button1").on('click',function(e){
-        if (btnPressed === false) {
-          csrf = $("input[name=csrfmiddlewaretoken]").val();
-          positions=[
-          [board.position().a4, board.position().b4, board.position().c4, board.position().d4],
-          [board.position().a3, board.position().b3, board.position().c3, board.position().d3],
-          [board.position().a2, board.position().b2, board.position().c2, board.position().d2],
-          [board.position().a1, board.position().b1, board.position().c1, board.position().d1]
-          ]
-          var i;
-
-          for (i=3; i>-1; i--) {
-            if (positions[i].indexOf('wK') !== -1) {
-              dict['wK'] = [i, positions[i].indexOf('wK')]
-            }
-            if (positions[i].indexOf('wQ') !== -1) {
-              dict['wQ'] = [i, positions[i].indexOf('wQ')]
-            }
-            if (positions[i].indexOf('bK') !== -1) {
-              dict['bK'] = [i, positions[i].indexOf('bK')]
-            }
-            if (positions[i].indexOf('bQ') !== -1) {
-              dict['bQ'] = [i, positions[i].indexOf('bQ')]
-            }
-          }
-
-          if (my_color === "white") {
-            var mntp = dict['wQ']
-            var mncp = dict['wK']
-          }
-          else {
-            var mntp = dict['bQ']
-            var mncp = dict['bK']
-          }
-          var new_triangle_position = [mntp[0], mntp[1]]
-          var new_circle_position = [mncp[0], mncp[1]]
-          $.ajax({
-            type:"POST",
-            url:"/move",
-            contentType: "application/json; charset=utf-8",
-            headers:{"X-CSRFTOKEN":csrf},
-            dataType: "json",
-            processData: false,
-            data: '{"game_id": "'+game_id+'", "player_id": "'+my_id+'", "new_triangle_position": "'+new_triangle_position+'", "new_circle_position": "'+new_circle_position+'"}',
-            success: function(data){
-              if (status === "WAITING_FOR_MOVE" || status === "INIT") {
-                $("#button1").attr('class', "okvir grayedOutButton");
-                btnPressed = true
-                //   config["draggable"]=false
-              }
-              console.log(status)
-              config["sparePieces"]=false
-              if (data["status"] !== "OK") {
-                if (data["status"] === "Greska: ne mozete pomaknuti obje figure na isto polje.") {
-                  board.position()[data["new_triangle_position"]] = undefined
-                  board.position()[data["new_circle_position"]] = undefined
-                  board.position()[data["triangle0_position"]] = my_color[0] + "Q"
-                  board.position()[data["circle0_position"]] = my_color[0] + "K"
-                }
-                else {
-                  if (data["triangle0_position"] !=="X") {
-                    board.move(data["new_triangle_position"] + "-" + data["triangle0_position"])
-                  }
-                  if (data["circle0_position"] !=="X") {
-                    board.move(data["new_circle_position"] + "-" + data["circle0_position"])
-                  }
-                }
-              }
-            },
-            error: function(){ // A function to be called if the request fails.
-                console.log("nije proslo");
-            }
-
-          })
-        }
-      })
-    })
-  </script>
-
-
 <div>
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
     <a id="button1" class = "okvir" name="Potvrdi potez" type="submit">Potvrdi potez</a>
 </div>
 
-<!-- IZMJENE -->
-
 <div class="gamedata">
-  Trenutni status: <br>
-  <span id="game_status"></span> <br>
+  Trenutni state: <br>
+  <span id="game_state"></span> <br>
   Game_id: {{game_id}} <br>
   Igrač: {{my_id}} <br>
-  Boja: {{my_color}} <br>
-  Suparnik: <span id="opponent_id"></span> <br>
+  Boja: <span id="player_color"></span> <br>
+  Suparnik: <span id="opponent_name"></span> <br>
+  Bodovi bijelog: <span id="white_player_score"></span> <br>
+  Bodovi crnog: <span id="black_player_score"></span> <br>
 </div>
 
+<div id="color_choice_widget" style="display: none">
+  <p> Odabir boje:
+    <button id="color_choice_triangle" value="triangle">Trokut</button>
+    <button id="color_choice_circle" value="circle">Krug</button>
+  </p>
+</div>
+
+<div id="error_message_widget"></div>
 <div id="board", style="width: 46.6%; box-shadow: 3px 3px 5px grey; display: block; margin: auto;"></div>
 
 <script src="{% static "kontranto_igra/jquery-3.4.1.min.js" %}"></script>
 <script src="{% static "kontranto_igra/chessboard.js" %}"></script>
 <script>
-  function onDragStart (source, piece, position, orientation) {
-    if ((orientation === 'white' && piece.search(/^w/) === -1) ||
-    (orientation === 'black' && piece.search(/^b/) === -1)) {
-      return false
+
+  /**
+   * Represents a book.
+   * @constructor
+   * @param {string} game_id - ID of the current game.
+   * @param {string} player_id - TODO remove
+   * @param {string} game_state - The state of the game at the loading time.
+   * @param {string} csrf_token - CSRF token to include in the calls to the backend.
+   * @param {string} chessboard_theme - Chessboard.js piece theme path.
+   */
+  function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme) {
+    // TODO remove
+    this.player_id = player_id;
+
+    // The current game ID
+    this.game_id = game_id;
+
+    // The current game state
+    this.game_state = game_state;
+
+    // CSRF token required for communicating with the backend
+    this.csrf_token = csrf_token;
+
+    // Player's color
+    this.player_color = null;
+
+    // The opponent TODO: replace with the name
+    this.opponent_player_id = null;
+
+    // The white player score
+    this.white_player_score = 0;
+
+    // The black player score
+    this.black_player_score = 0;
+
+    // ID of the game loop timer
+    this.timer_id = null;
+
+    // How long to wait between two game loop executions (in miliseconds).
+    this.game_loop_period_msec = 5000;
+
+    // Figure placement and fields marking. Legend: TODO
+    this.board_data = [];
+
+    // chessboard.js chessboard for the game
+    this.chessboard = null;
+
+    // Attaches the click handler on the color choice buttons
+    this.attachColorChoiceHandler = function(button) {
+      button.addEventListener('click', event => {
+        // TODO notification
+        // TODO call
+        document.querySelector("#color_choice_widget").style.display = 'none';
+      });
+    };
+
+    // Showes the error message to the user.
+    this.printError = function(error_message) {
+      // TODO: add expiration
+      document.querySelector("#error_message_widget").textContent = error_message;
+    };
+
+    // Updates the game according to the new state.
+    this.onGameStateChange = function(new_state) {
+      if (new_state === this.game_state) return;
+
+      this.game_state = new_state;
+
+      // TODO color choice -- make buttons visible
+      // TODO the rest
+      document.querySelector("#game_state").textContent = new_state;
+      // TODO clearInterval(this.timer_id) iff timer_id != null
+      // TODO update color this.player_color_widget = document.querySelector("#player_color");
+      // TODO this.opponent_name_widget = document.querySelector("#opponent_name");
+    };
+
+    // Renders the game data to the player (score, etc.)
+    this.updateGameStats = function(board_data, current_player_color, opponent_player_id,
+        white_player_score, black_player_score) {
+      this.player_color = player_color;
+      this.opponent_player_id = opponent_player_id;
+      this.white_player_score = white_player_score;
+      this.black_player_score = black_player_score;
+
+      document.querySelector("#player_color").textContent = this.player_color;
+      document.querySelector("#opponent_name").textContent = this.opponent_player_id;
+      document.querySelector("#white_player_score").textContent = this.white_player_score;
+      document.querySelector("#black_player_score").textContent = this.black_player_score;
+
+      this.board_data = board_data
+      // TODO render the board if changed
+    };
+
+    // Executes the game loop.
+    this.gameLoop = function() {
+      $.ajax({
+        type: "POST",
+        url: "/game_state/" + this.game_id + "/" + this.player_id,
+        contentType: "application/json; charset=utf-8",
+        headers: {"X-CSRFTOKEN": this.csrf_token},
+        dataType: "json",
+        processData: false,
+        success: function(data) {
+          this.onGameStateChange(data.game_state);
+          this.updateGameStats(data.board, data.current_player_color,
+             data.opponent_player_id, data.white_player_score, data.black_player_score);
+          if (data.response_status !== "OK") {
+            this.printError(data.error_message);
+          }
+        },
+        error: function() {
+          this.printError("Greška pri komunikaciji sa serverom!");
+          console.log("Server error");
+        }
+      });
+    };
+
+    // Handles dragging of the chessboard pieces
+    this.onPieceDragStart = function(source, piece, position, orientation) {
+      if ((orientation === 'white' && piece.search(/^w/) === -1)
+          || (orientation === 'black' && piece.search(/^b/) === -1)) {
+        return false
+      }
+    };
+
+    // Initialize the game
+    this.onGameStateChange(this.game_state);
+
+    this.attachColorChoiceHandler(document.querySelector("#color_choice_triangle"));
+    this.attachColorChoiceHandler(document.querySelector("#color_choice_circle"));
+
+    let chessboard_config = {
+      numRows: 4,
+      numColumns: 4,
+      draggable: true,
+      dropOffBoard: 'snapback',
+      onDragStart: this.onPieceDragStart,
+      sparePieces: true,
+      pieceTheme: chessboard_theme,
+      position: { }
     }
+    this.chessboard = Chessboard('board', chessboard_config)
+    $(window).resize(this.chessboard.resize)
+
+    // Start the game loop
+    this.timer_id = setInterval(this.gameLoop, this.game_loop_period_msec);
   }
 
-  var config = {
-    numRows: 4,
-    numColumns: 4,
-    draggable: true,
-    dropOffBoard: 'snapback',
-    onDragStart: onDragStart,
-    sparePieces: true,
-    pieceTheme: '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png',
-    position: {
-    }
-  }
-  var board = Chessboard('board', config)
-  $(window).resize(board.resize)
+
+ $(document).ready(function() {
+   var kontranto = new Kontranto(
+     '{{ game_id }}',
+     '{{ player_id }}',
+     '{{ game_state }}',
+     '{{ csrf }}',
+     '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png');
+ }
 </script>
-
-<!-- <button
-  id="button1",
-  class = "button"
-  >Potvrdi potez
-  {% csrf_token %}
-</button> -->
-
 </body>
 </html>
