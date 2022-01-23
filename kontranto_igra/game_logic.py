@@ -43,7 +43,7 @@ class GameResponse:
 
   board: List[List[str]] = None
 
-  response_status: str = "OK"
+  info_message: str = None
   error_message: str = None
 
   @staticmethod
@@ -56,7 +56,6 @@ class GameResponse:
     return GameResponse().with_error(error_message)
 
   def with_error(self, error_message: str):
-    self.response_status = "ERROR"
     self.error_message = error_message
     return self
 

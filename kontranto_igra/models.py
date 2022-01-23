@@ -8,18 +8,28 @@ class GameState(enum.Enum):
   """All possible game states."""
   # Game is created, but still missing the second player.
   GAME_SETUP = enum.auto()
+
   # The game is done. No further action is possible.
   FINISHED = enum.auto()
+
   # Both players are present. First play step: color choice
   COLOR_CHOICE = enum.auto()
+
   # The players are moving their figures.
   GAME_RUNNING = enum.auto()
+
+  # NOTE: one player must not know if the other submitted the move or
+  # not. Instead these two WAITING_X_PLAYER_MOVE the client gets either:
+  #  GAME_RUNNING
+  #  WAITING_OTHER_PLAYER_MOVE
   # The black player submitted the next move. Waiting for the white.
   WAITING_WHITE_PLAYER_MOVE = enum.auto()
   # The white player submitted the next move. Waiting for the black.
   WAITING_BLACK_PLAYER_MOVE = enum.auto()
+
   # A clash between figures occured.
   CLASH = enum.auto()
+
   # Shock move triggered.
   SHOCK_MOVE = enum.auto()
 
