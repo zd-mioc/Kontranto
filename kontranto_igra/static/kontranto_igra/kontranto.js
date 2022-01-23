@@ -1,3 +1,7 @@
+// The client side of Kontranto game.
+//
+// Depends on: chessboard.js, jquery
+
 /**
  * Kontranto game.
  *
@@ -45,23 +49,20 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
   // chessboard.js chessboard for the game
   this.chessboard = null;
 
-  // Attaches the click handler on the color choice buttons
-  this.attachColorChoiceHandler = function(button) {
-    button.addEventListener('click', event => {
-      // TODO notification
-      // TODO call
-      document.querySelector("#color_choice_widget").style.display = 'none';
-    });
-  };
-
   // Shows the error message to the user.
   this.printError = function(error_message) {
+    if (!error_message) {
+      return;
+    }
     // TODO: add expiration
     document.querySelector("#error_message_widget").textContent = error_message;
   };
 
   // Shows the info message to the user.
   this.printInfo = function(message) {
+    if (!message) {
+      return;
+    }
     // TODO: add expiration
     document.querySelector("#info_message_widget").textContent = message;
   };
@@ -184,18 +185,51 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
   };
 
   // Renders the game data to the player (score, etc.)
-  this.updateGameStats = function(current_player_color, opponent_player_id,
-      white_player_score, black_player_score) {
-    this.player_color = player_color;
+  this.updateGameStats = function(opponent_player_id, white_player_score, black_player_score) {
     this.opponent_player_id = opponent_player_id;
     this.white_player_score = white_player_score;
     this.black_player_score = black_player_score;
 
-    document.querySelector("#player_color").textContent = this.player_color;
     document.querySelector("#opponent_name").textContent = this.opponent_player_id;
     document.querySelector("#white_player_score").textContent = this.white_player_score;
     document.querySelector("#black_player_score").textContent = this.black_player_score;
   };
+
+  // Attaches the click handler on the color choice buttons
+  this.attachColorChoiceHandler = function(button) {
+    button.addEventListener('click', event => {
+      document.querySelector("#color_choice_widget").style.display = 'none';
+      $.ajax({
+        type: "POST",
+        url: "/move",
+        contentType: "application/json; charset=utf-8",
+        headers: {"X-CSRFTOKEN": this.csrf_token},
+        dataType: "json",
+        processData: false,
+        cache: false,
+        data: {player_id: this.player_id, game_id: this.game_id, color_choice_shape: button.value},
+        success: function(data) {
+          this.player_color = data.current_player_color;
+          document.querySelector("#player_color").textContent = this.player_color;
+
+          this.onGameStateChange(data.game_state);
+          this.printInfo(data.info_message);
+          this.printError(data.error_message);
+        },
+        error: function(request, status, error) {
+          this.printError("Greška pri komunikaciji sa serverom!");
+          console.log("Server error: " + error);
+          // Unhide the widget so that the user can retry.
+          document.querySelector("#color_choice_widget").style.display = '';
+        }
+      });
+    });
+  };
+
+  // TODO
+  //  - user move
+  //  - valid move positions (edge case: two figures of the same color are in reach -- one would 'eat' the other)
+  //  - spare pieces
 
   // Executes the game loop.
   this.gameLoop = function() {
@@ -206,19 +240,17 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
       headers: {"X-CSRFTOKEN": this.csrf_token},
       dataType: "json",
       processData: false,
+      cache: false,
       success: function(data) {
         this.onGameStateChange(data.game_state);
-        this.updateGameStats(data.current_player_color, data.opponent_player_id,
-           data.white_player_score, data.black_player_score);
+        this.updateGameStats(data.opponent_player_id, data.white_player_score, data.black_player_score);
         this.printInfo(data.info_message);
         this.updateBoard(data.board);
-        if (data.error_message) {
-          this.printError(data.error_message);
-        }
+        this.printError(data.error_message);
       },
-      error: function() {
+      error: function(request, status, error) {
         this.printError("Greška pri komunikaciji sa serverom!");
-        console.log("Server error");
+        console.log("Server error: " + error);
       }
     });
   };
