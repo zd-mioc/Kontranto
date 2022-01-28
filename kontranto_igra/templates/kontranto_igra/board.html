@@ -1,27 +1,26 @@
 {% load static %}
 <html>
 <head>
-    <title>Kontranto</title>
-    <link rel="stylesheet" href="{% static "kontranto_igra/chessboard.css" %}">
-    <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@600&display=swap" rel="stylesheet">
+  <title>Kontranto</title>
+  <link rel="stylesheet" href="{% static "kontranto_igra/chessboard.css" %}">
 
-    <style>
+  <style>
     .gamedata{
       position:absolute;
       top:7%;
       transform:translate(0,-50%)
     }
-    </style>
+  </style>
 </head>
 
 <body>
 
-<div>
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
-    <a id="button1" class = "okvir" name="Potvrdi potez" type="submit">Potvrdi potez</a>
+<div id="submit_move_widget" style="display: none">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
+  <a id="submit_move_btn" class = "okvir" name="Potvrdi potez" type="submit">Potvrdi potez</a>
 </div>
 
-<div class="gamedata">
+<div>
   Trenutni state: <br>
   <span id="game_state"></span> <br>
   Game_id: {{game_id}} <br>
@@ -47,14 +46,14 @@
 <script src="{% static "kontranto_igra/chessboard.js" %}"></script>
 <script src="{% static "kontranto_igra/kontranto.js" %}"></script>
 <script>
- $(document).ready(function() {
-   var kontranto = new Kontranto(
-     '{{ game_id }}',
-     '{{ player_id }}',
-     '{{ game_state }}',
-     '{{ csrf }}',
-     '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png');
- });
+$(document).ready(function() {
+  var kontranto = new Kontranto(
+    '{{ game_id }}',
+    '{{ player_id }}',
+    '{{ game_state }}',
+    '{{ csrf }}',
+    '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png');
+});
 </script>
 </body>
 </html>

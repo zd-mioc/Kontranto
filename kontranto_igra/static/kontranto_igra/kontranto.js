@@ -60,7 +60,8 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
     numColumns: 4,
     draggable: true,
     dropOffBoard: 'snapback',
-    onDragStart: this.onPieceDragStart,
+    onDragStart: this.onPieceDragStart.bind(this),
+    onDrop: this.onPieceMove.bind(this),
     sparePieces: true,
     pieceTheme: chessboard_theme,
     position: { }
@@ -68,7 +69,9 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
   this.chessboard = Chessboard('board', chessboard_config)
   $(window).resize(this.chessboard.resize)
 
-  // Start the game loop
+  // Run initial game loop to setup the state without waiting.
+  this.gameLoop(this);
+  // Start the loop
   this.timer_id = setInterval(this.gameLoop, this.game_loop_period_msec, this);
 }
 
@@ -283,5 +286,16 @@ Kontranto.prototype.onPieceDragStart = function(source, piece, position, orienta
   if ((orientation === 'white' && piece.search(/^w/) === -1)
       || (orientation === 'black' && piece.search(/^b/) === -1)) {
     return false
+  }
+  if (this.game_state !== "GAME_RUNNING" && this.game_state !== "CLASH") {
+    return false;
+  }
+};
+
+// Runs after the piece gets moved. Removes the pieces from the spares.
+Kontranto.prototype.onPieceMove = function(source, target, piece, newPos, oldPos, orientation) {
+  if (source === "spare" && target !== "offboard") {
+    console.log("Spare piece " + piece + " was moved to the board")
+    document.querySelector("div.spare-pieces-7492f > img[data-piece='" + piece + "']").style.display = "none";
   }
 };
