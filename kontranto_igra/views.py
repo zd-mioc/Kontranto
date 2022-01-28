@@ -58,7 +58,7 @@ def show_board(request, game_id, player_id):
   # TODO: get the player_id from the auth context
   gr = game_logic.get_game_state(player_id, game_id)
   template = loader.get_template("kontranto_igra/board.html")
-  response_body = template.render({"status" : gr.game_state, "game_id": gr.game_id, "my_id": player_id, "my_color" : gr.current_player_color, "csrf": csrf.get_token(request)})
+  response_body = template.render({"status" : gr.game_state, "game_id": gr.game_id, "player_id": player_id, "my_color" : gr.current_player_color, "csrf": csrf.get_token(request)})
   # TODO: properly pass the context
   # context_instance=RequestContext(request))
   return HttpResponse(response_body)
@@ -104,7 +104,7 @@ def _get_user_input(request_body: bytes) -> Tuple[game_logic.UserInput, HttpResp
 
 
 def move(request):
-  """Handles player's move."""
+  """Handles player's action."""
   user_input, err = _get_user_input(request.body)
   if err:
       return err

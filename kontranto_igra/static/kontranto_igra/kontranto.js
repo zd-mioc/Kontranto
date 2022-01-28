@@ -41,227 +41,13 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
   this.timer_id = null;
 
   // How long to wait between two game loop executions (in miliseconds).
-  this.game_loop_period_msec = 5000;
+  this.game_loop_period_msec = 2000;
 
   // Figure placement and fields marking. See the backend model for the details.
   this.board_data = Array(4).fill(['','','','']);
 
   // chessboard.js chessboard for the game
   this.chessboard = null;
-
-  // Shows the error message to the user.
-  this.printError = function(error_message) {
-    if (!error_message) {
-      return;
-    }
-    // TODO: add expiration
-    document.querySelector("#error_message_widget").textContent = error_message;
-  };
-
-  // Shows the info message to the user.
-  this.printInfo = function(message) {
-    if (!message) {
-      return;
-    }
-    // TODO: add expiration
-    document.querySelector("#info_message_widget").textContent = message;
-  };
-
-  // Ends the game
-  this.endGame = function() {
-    if (this.timer_id !== null) {
-      clearInterval(this.timer_id);
-    }
-  };
-
-  // Updates the game according to the new state.
-  this.onGameStateChange = function(new_state) {
-    if (new_state === this.game_state) return;
-
-    this.game_state = new_state;
-    document.querySelector("#game_state").textContent = this.game_state;
-
-    switch (this.game_state) {
-      case "FINISHED":
-        this.endGame();
-        return;
-      case "COLOR_CHOICE":
-        break;
-      case "CLASH":
-        break;
-      case "SHOCK_MOVE":
-        break;
-      case "GAME_RUNNING":
-        break;
-      case "WAITING_OTHER_PLAYER_MOVE":
-        break;
-    }
-
-    // TODO color choice -- make buttons visible
-    // TODO the rest
-  };
-
-  // Updates the chess board to the new positions. Does nothing if the new
-  // board is equal to the old board data.
-  this.updateBoard = function(board_data) {
-    if (JSON.stringify(this.board_data) === JSON.stringify(board_data)) {
-      // The board remained the same. No need for an update.
-      return;
-    }
-
-    var bad_board_data = false;
-    // Validation
-    if (board_data.length !== this.board_data.length) {
-      bad_board_data = true;
-    }
-
-    // Collect moves
-    var moves_black = {
-      triangle: [null, null],
-      circle: [null, null],
-    };
-    var moves_white = {
-      triangle: [null, null],
-      circle: [null, null],
-    };
-    // Converts array coordinates to chess coordinates
-    var axis_to_chess = function(x, y) {
-      return String.fromCharCode('a'.charCodeAt(0) + y - 1) + x.toString();
-    };
-    for (var i = 0; i < board_data.length; i++) {
-      // Validation
-      if (board_data[i].length !== this.board_data[i].length) {
-        bad_board_data = true;
-        return;
-      }
-
-      for (var j = 0; j < board_data[i]; j++) {
-        if (this.board_data[i][j] === "WT") {
-          moves_white.triange[0] = axis_to_chess(i, j);
-        }
-        if (this.board_data[i][j] === "WC") {
-          moves_white.circle[0] = axis_to_chess(i, j);
-        }
-
-        if (board_data[i][j] === "WT") {
-          moves_white.triange[1] = axis_to_chess(i, j);
-        }
-        if (board_data[i][j] === "WC") {
-          moves_white.circle[1] = axis_to_chess(i, j);
-        }
-
-        if (this.board_data[i][j] === "BT") {
-          moves_black.triange[0] = axis_to_chess(i, j);
-        }
-        if (this.board_data[i][j] === "BC") {
-          moves_black.circle[0] = axis_to_chess(i, j);
-        }
-
-        if (board_data[i][j] === "BT") {
-          moves_black.triange[1] = axis_to_chess(i, j);
-        }
-        if (board_data[i][j] === "BC") {
-          moves_black.circle[1] = axis_to_chess(i, j);
-        }
-      }
-    }
-
-    if (bad_board_data) {
-      this.printError("Primljena je neispravna ploča!");
-      console.log("Bad board data. Length mismatch. Have " + this.board_data + " got " + board_data);
-      this.printInfo("Prekid igre.");
-      this.endGame();
-      return;
-    }
-
-    // Execute the moves
-    this.chessboard.move(moves_black.triangle.join('-'))
-    this.chessboard.move(moves_black.circle.join('-'))
-    this.chessboard.move(moves_white.triangle.join('-'))
-    this.chessboard.move(moves_white.circle.join('-'))
-
-    // Update the local board state
-    this.boad_data = board_data;
-  };
-
-  // Renders the game data to the player (score, etc.)
-  this.updateGameStats = function(opponent_player_id, white_player_score, black_player_score) {
-    this.opponent_player_id = opponent_player_id;
-    this.white_player_score = white_player_score;
-    this.black_player_score = black_player_score;
-
-    document.querySelector("#opponent_name").textContent = this.opponent_player_id;
-    document.querySelector("#white_player_score").textContent = this.white_player_score;
-    document.querySelector("#black_player_score").textContent = this.black_player_score;
-  };
-
-  // Attaches the click handler on the color choice buttons
-  this.attachColorChoiceHandler = function(button) {
-    button.addEventListener('click', event => {
-      document.querySelector("#color_choice_widget").style.display = 'none';
-      $.ajax({
-        type: "POST",
-        url: "/move",
-        contentType: "application/json; charset=utf-8",
-        headers: {"X-CSRFTOKEN": this.csrf_token},
-        dataType: "json",
-        processData: false,
-        cache: false,
-        data: {player_id: this.player_id, game_id: this.game_id, color_choice_shape: button.value},
-        success: function(data) {
-          this.player_color = data.current_player_color;
-          document.querySelector("#player_color").textContent = this.player_color;
-
-          this.onGameStateChange(data.game_state);
-          this.printInfo(data.info_message);
-          this.printError(data.error_message);
-        },
-        error: function(request, status, error) {
-          this.printError("Greška pri komunikaciji sa serverom!");
-          console.log("Server error: " + error);
-          // Unhide the widget so that the user can retry.
-          document.querySelector("#color_choice_widget").style.display = '';
-        }
-      });
-    });
-  };
-
-  // TODO
-  //  - user move
-  //  - valid move positions (edge case: two figures of the same color are in reach -- one would 'eat' the other)
-  //  - spare pieces
-
-  // Executes the game loop.
-  this.gameLoop = function() {
-    $.ajax({
-      type: "POST",
-      url: "/game_state/" + this.game_id + "/" + this.player_id,
-      contentType: "application/json; charset=utf-8",
-      headers: {"X-CSRFTOKEN": this.csrf_token},
-      dataType: "json",
-      processData: false,
-      cache: false,
-      success: function(data) {
-        this.onGameStateChange(data.game_state);
-        this.updateGameStats(data.opponent_player_id, data.white_player_score, data.black_player_score);
-        this.printInfo(data.info_message);
-        this.updateBoard(data.board);
-        this.printError(data.error_message);
-      },
-      error: function(request, status, error) {
-        this.printError("Greška pri komunikaciji sa serverom!");
-        console.log("Server error: " + error);
-      }
-    });
-  };
-
-  // Handles dragging of the chessboard pieces
-  this.onPieceDragStart = function(source, piece, position, orientation) {
-    if ((orientation === 'white' && piece.search(/^w/) === -1)
-        || (orientation === 'black' && piece.search(/^b/) === -1)) {
-      return false
-    }
-  };
 
   // Initialize the game
   this.onGameStateChange(this.game_state);
@@ -283,6 +69,219 @@ function Kontranto(game_id, player_id, game_state, csrf_token, chessboard_theme)
   $(window).resize(this.chessboard.resize)
 
   // Start the game loop
-  this.timer_id = setInterval(this.gameLoop, this.game_loop_period_msec);
+  this.timer_id = setInterval(this.gameLoop, this.game_loop_period_msec, this);
 }
 
+// Shows the error message to the user.
+Kontranto.prototype.printError = function(error_message) {
+  if (!error_message) {
+    return;
+  }
+  // TODO: add expiration
+  document.querySelector("#error_message_widget").textContent = error_message;
+};
+
+// Shows the info message to the user.
+Kontranto.prototype.printInfo = function(message) {
+  if (!message) {
+    return;
+  }
+  // TODO: add expiration
+  document.querySelector("#info_message_widget").textContent = message;
+};
+
+// Ends the game
+Kontranto.prototype.endGame = function() {
+  if (this.timer_id !== null) {
+    clearInterval(this.timer_id);
+  }
+};
+
+// Updates the game according to the new state.
+Kontranto.prototype.onGameStateChange = function(new_state) {
+  if (new_state === this.game_state) return;
+
+  this.game_state = new_state;
+  document.querySelector("#game_state").textContent = this.game_state;
+
+  switch (this.game_state) {
+    case "FINISHED":
+      this.endGame();
+      return;
+    case "COLOR_CHOICE":
+      break;
+    case "CLASH":
+      break;
+    case "SHOCK_MOVE":
+      break;
+    case "GAME_RUNNING":
+      break;
+    case "WAITING_OTHER_PLAYER_MOVE":
+      break;
+  }
+
+  // TODO color choice -- make buttons visible
+  // TODO the rest
+};
+
+// Updates the chess board to the new positions. Does nothing if the new
+// board is equal to the old board data.
+Kontranto.prototype.updateBoard = function(board_data) {
+  if (JSON.stringify(this.board_data) === JSON.stringify(board_data)) {
+    // The board remained the same. No need for an update.
+    return;
+  }
+
+  var bad_board_data = false;
+  // Validation
+  if (board_data.length !== this.board_data.length) {
+    bad_board_data = true;
+  }
+
+  // Collect moves
+  var moves_black = {
+    triangle: [null, null],
+    circle: [null, null],
+  };
+  var moves_white = {
+    triangle: [null, null],
+    circle: [null, null],
+  };
+  // Converts array coordinates to chess coordinates
+  var axis_to_chess = function(x, y) {
+    return String.fromCharCode('a'.charCodeAt(0) + y - 1) + x.toString();
+  };
+  for (var i = 0; i < board_data.length; i++) {
+    // Validation
+    if (board_data[i].length !== this.board_data[i].length) {
+      bad_board_data = true;
+      return;
+    }
+
+    for (var j = 0; j < board_data[i]; j++) {
+      if (this.board_data[i][j] === "WT") {
+        moves_white.triange[0] = axis_to_chess(i, j);
+      }
+      if (this.board_data[i][j] === "WC") {
+        moves_white.circle[0] = axis_to_chess(i, j);
+      }
+
+      if (board_data[i][j] === "WT") {
+        moves_white.triange[1] = axis_to_chess(i, j);
+      }
+      if (board_data[i][j] === "WC") {
+        moves_white.circle[1] = axis_to_chess(i, j);
+      }
+
+      if (this.board_data[i][j] === "BT") {
+        moves_black.triange[0] = axis_to_chess(i, j);
+      }
+      if (this.board_data[i][j] === "BC") {
+        moves_black.circle[0] = axis_to_chess(i, j);
+      }
+
+      if (board_data[i][j] === "BT") {
+        moves_black.triange[1] = axis_to_chess(i, j);
+      }
+      if (board_data[i][j] === "BC") {
+        moves_black.circle[1] = axis_to_chess(i, j);
+      }
+    }
+  }
+
+  if (bad_board_data) {
+    this.printError("Primljena je neispravna ploča!");
+    console.log("Bad board data. Length mismatch. Have " + this.board_data + " got " + board_data);
+    this.printInfo("Prekid igre.");
+    this.endGame();
+    return;
+  }
+
+  // Execute the moves
+  this.chessboard.move(moves_black.triangle.join('-'))
+  this.chessboard.move(moves_black.circle.join('-'))
+  this.chessboard.move(moves_white.triangle.join('-'))
+  this.chessboard.move(moves_white.circle.join('-'))
+
+  // Update the local board state
+  this.boad_data = board_data;
+};
+
+// Renders the game data to the player (score, etc.)
+Kontranto.prototype.updateGameStats = function(opponent_player_id, white_player_score, black_player_score) {
+  this.opponent_player_id = opponent_player_id;
+  this.white_player_score = white_player_score;
+  this.black_player_score = black_player_score;
+
+  document.querySelector("#opponent_name").textContent = this.opponent_player_id;
+  document.querySelector("#white_player_score").textContent = this.white_player_score;
+  document.querySelector("#black_player_score").textContent = this.black_player_score;
+};
+
+// Attaches the click handler on the color choice buttons
+Kontranto.prototype.attachColorChoiceHandler = function(button) {
+  button.addEventListener('click', event => {
+    document.querySelector("#color_choice_widget").style.display = 'none';
+    $.ajax({
+      type: "POST",
+      url: "/move",
+      contentType: "application/json; charset=utf-8",
+      headers: {"X-CSRFTOKEN": this.csrf_token},
+      dataType: "json",
+      processData: false,
+      cache: false,
+      data: {player_id: this.player_id, game_id: this.game_id, color_choice_shape: button.value},
+      success: function(data) {
+        this.player_color = data.current_player_color;
+        document.querySelector("#player_color").textContent = this.player_color;
+
+        this.onGameStateChange(data.game_state);
+        this.printInfo(data.info_message);
+        this.printError(data.error_message);
+      },
+      error: function(request, status, error) {
+        this.printError("Greška pri komunikaciji sa serverom!");
+        console.log("Server error: " + error);
+        // Unhide the widget so that the user can retry.
+        document.querySelector("#color_choice_widget").style.display = '';
+      }
+    });
+  });
+};
+
+// TODO
+//  - user move
+//  - valid move positions (edge case: two figures of the same color are in reach -- one would 'eat' the other)
+//  - spare pieces
+
+// Executes the game loop.
+Kontranto.prototype.gameLoop = function(kontranto) {
+  $.ajax({
+    type: "POST",
+    url: "/game_state/" + kontranto.game_id + "/" + kontranto.player_id,
+    contentType: "application/json; charset=utf-8",
+    headers: {"X-CSRFTOKEN": kontranto.csrf_token},
+    dataType: "json",
+    processData: false,
+    cache: false,
+    success: function(data) {
+      kontranto.onGameStateChange(data.game_state);
+      kontranto.updateGameStats(data.opponent_player_id, data.white_player_score, data.black_player_score);
+      kontranto.printInfo(data.info_message);
+      kontranto.updateBoard(data.board);
+      kontranto.printError(data.error_message);
+    },
+    error: function(request, status, error) {
+      kontranto.printError("Greška pri komunikaciji sa serverom!");
+      console.log("Server error: " + error);
+    }
+  });
+};
+
+// Handles dragging of the chessboard pieces
+Kontranto.prototype.onPieceDragStart = function(source, piece, position, orientation) {
+  if ((orientation === 'white' && piece.search(/^w/) === -1)
+      || (orientation === 'black' && piece.search(/^b/) === -1)) {
+    return false
+  }
+};
