@@ -16,8 +16,7 @@
 <body>
 
 <div id="submit_move_widget" style="display: none">
-  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf }}"/>
-  <a id="submit_move_btn" class = "okvir" name="Potvrdi potez" type="submit">Potvrdi potez</a>
+  <button id="submit_move_btn" value="">Potvrdi potez</button>
 </div>
 
 <div>
@@ -46,14 +45,14 @@
 <script src="{% static "kontranto_igra/chessboard.js" %}"></script>
 <script src="{% static "kontranto_igra/kontranto.js" %}"></script>
 <script>
-$(document).ready(function() {
+//$(document).ready(function() {
   var kontranto = new Kontranto(
     '{{ game_id }}',
     '{{ player_id }}',
     '{{ game_state }}',
     '{{ csrf }}',
     '{% static "kontranto_igra/images/chesspieces/wikipedia" %}/{piece}.png');
-});
+//});
 </script>
 </body>
 </html>

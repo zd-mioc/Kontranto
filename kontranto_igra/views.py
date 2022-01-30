@@ -48,6 +48,9 @@ def join_game(request):
       # TODO: get the player_id from the auth context
       player_id = join_game_form.cleaned_data['player_id']
       gr = game_logic.join_game(player_id, join_game_form.cleaned_data['game_id'])
+      if gr.error_message:
+        # TODO: handle the error
+        return redirect("")
       return redirect("show_board", game_id=gr.game_id, player_id=player_id)
   # TODO: handle the error
   return redirect("")

@@ -15,17 +15,20 @@ class GameState(enum.Enum):
   # Both players are present. First play step: color choice
   COLOR_CHOICE = enum.auto()
 
+  # Initial placement of the pieces on the board
+  INITIAL_PLACEMENT = enum.auto()
+
   # The players are moving their figures.
   GAME_RUNNING = enum.auto()
 
   # NOTE: one player must not know if the other submitted the move or
-  # not. Instead these two WAITING_X_PLAYER_MOVE the client gets either:
+  # not. Instead these two WAITING_PLAYER_X_MOVE the client gets either:
   #  GAME_RUNNING
   #  WAITING_OTHER_PLAYER_MOVE
-  # The black player submitted the next move. Waiting for the white.
-  WAITING_WHITE_PLAYER_MOVE = enum.auto()
-  # The white player submitted the next move. Waiting for the black.
-  WAITING_BLACK_PLAYER_MOVE = enum.auto()
+  # The second player submitted the next move. Waiting for the first player.
+  WAITING_PLAYER_ONE_MOVE = enum.auto()
+  # The first player submitted the next move. Waiting for the second player.
+  WAITING_PLAYER_TWO_MOVE = enum.auto()
 
   # A clash between figures occured.
   CLASH = enum.auto()
@@ -41,9 +44,13 @@ def default_board():
 class Game(models.Model):
   game_id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   player_1_id=models.CharField(max_length=200)
-  player_2_id=models.CharField(max_length=200)
-  white_player_id=models.CharField(max_length=200)
-  black_player_id=models.CharField(max_length=200)
+  player_2_id=models.CharField(max_length=200, default='')
+  player_1_color_choice=models.CharField(max_length=10, default='')
+  player_2_color_choice=models.CharField(max_length=10, default='')
+  white_player_id=models.CharField(max_length=200, default='')
+  black_player_id=models.CharField(max_length=200, default='')
+  # The player who won the game
+  winner_id=models.CharField(max_length=200, default='')
 
   white_player_score=models.IntegerField(default=0)
   black_player_score=models.IntegerField(default=0)
@@ -69,7 +76,7 @@ class Game(models.Model):
 
 class Move(models.Model):
   game_id=models.ForeignKey(Game, on_delete=models.CASCADE)
-  color=models.CharField(max_length=200)
+  player_id=models.CharField(max_length=200)
   triangle_position=models.CharField(max_length=10)
   circle_position=models.CharField(max_length=10)
   move_timestamp=models.DateTimeField()
