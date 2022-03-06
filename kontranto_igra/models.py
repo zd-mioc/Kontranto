@@ -62,6 +62,11 @@ class Game(models.Model):
   #  BC -- black circle
   #  SF -- shock field
   #  DF -- destroyed field
+  # In clash, all combinations:
+  #  CWTBT -- WT+BT in clash
+  #  CWTBC
+  #  CWCBT
+  #  CWCBC
   # When player sent new move, but it's not yet official
   # (waiting for the other player's move):
   #  NWT -- next white triangle
@@ -75,8 +80,12 @@ class Game(models.Model):
   game_state=models.CharField(max_length=50, choices=possible_states)
 
 class Move(models.Model):
-  game_id=models.ForeignKey(Game, on_delete=models.CASCADE)
+  game=models.ForeignKey(Game, on_delete=models.CASCADE)
   player_id=models.CharField(max_length=200)
-  triangle_position=models.CharField(max_length=10)
-  circle_position=models.CharField(max_length=10)
+  # Board position. Tuple (x,y)
+  triangle_position=models.JSONField()
+  # Board position. Tuple (x,y)
+  circle_position=models.JSONField()
   move_timestamp=models.DateTimeField()
+  # ID of the player who scored upon this move
+  scoring_player_id=models.CharField(max_length=200, default='')

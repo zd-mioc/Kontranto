@@ -1,15 +1,21 @@
+import datetime
 import enum
+import json
 import logging
 
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 from django.core.exceptions import ObjectDoesNotExist
-from django.core import serializers
-from django.utils import timezone
 
 from kontranto_igra.models import Game, Move, GameState
 
 logger = logging.getLogger(__name__)
+
+# Maximum allowed time for move per player
+MAX_TIME_PER_MOVE = datetime.timedelta(minutes=5)
+
+# The number of points to win the game
+WINNING_SCORE = 9
 
 class PlayerColor(enum.Enum):
   """All possible player colors."""
@@ -141,6 +147,105 @@ def _handle_color_choice(user_input: UserInput, g: Game) -> GameResponse:
   return GameResponse.from_game(g)
 
 
+def _find_board_field(g: Game, content: str) -> Tuple[Optional[int], Optional[int]]:
+  """Returns the coordinates of the board field with the given figure"""
+  for y, row in enumerate(g.board):
+    for x, field in enumerate(row):
+      if field == content:
+        return (x, y)
+  return (None, None)
+
+
+def _can_visit_all_figures(g: Game) -> bool:
+  """Returns true if all figures are reachable from each other"""
+  x,y = _find_board_field(g, "WT")
+  target = set(["WT", "WC", "BT", "BC"])
+  found = []
+  to_visit = []
+  visited = set()
+  while True:
+    if g.board[y][x] in target:
+      found.append(g.board[y][x])
+      if len(found) == len(target):
+        return True
+    visited.add((x,y))
+    valid_x = [x]
+    valid_y = [y]
+    if x-1 >= 0:
+      valid_x.append(x-1)
+    if x+1 < len(g.board):
+      valid_x.append(x+1)
+    if y-1 >= 0:
+      valid_y.append(y-1)
+    if y+1 < len(g.board):
+      valid_y.append(y+1)
+    for nx in valid_x:
+      for ny in valid_y:
+        if (nx, ny) not in visited and (nx, ny) not in to_visit and g.board[y][x] != "DF":
+          to_visit.append((x,y))
+    if not to_visit:
+      break
+    x,y = to_visit.pop()
+  return False
+
+
+def _clear_board_field(g: Game, content: str):
+  """Clears the board field populated with the given content"""
+  (x, y) = _find_board_field(g, content)
+  if x is None or y is None:
+    return
+  g.board[y][x] = ''
+
+
+def _check_clash_and_update_game(g: Game, current_player_color: PlayerColor, new_triangle_position: Tuple[int, int], new_circle_position: Tuple[int, int]) -> str:
+  """Checks if there's a clash. Updates the game and returns the ID of scoring player (or an empty string)"""
+  current_player_color_code = "W" if current_player_color == PlayerColor.WHITE else "B"
+  other_player_color_code = "B" if current_player_color == PlayerColor.WHITE else "W"
+
+  # Remove the N-prefix from the other player's position
+  (other_tx, other_ty) = _find_board_field(g, "N"+other_player_color_code+"T")
+  (other_cx, other_cy) = _find_board_field(g, "N"+other_player_color_code+"C")
+  g.board[other_ty][other_tx] = other_player_color_code + "T"
+  g.board[other_cy][other_cx] = other_player_color_code + "C"
+
+  tx, ty = new_triangle_position
+  cx, cy = new_circle_position
+
+  # Check for the clash and update the score
+  scoring_player_id = ''
+  if tx == other_tx and ty == other_ty:
+    g.board[ty][tx] = "CWTBT"
+    g.white_player_score += 1
+    scoring_player_id = g.white_player_id
+  if cx == other_cx and cy == other_cy:
+    g.board[cy][cx] = "CWCBC"
+    g.white_player_score += 1
+    scoring_player_id = g.white_player_id
+  if tx == other_cx and ty == other_cy:
+    g.board[ty][tx] = "CWTBC"
+    g.black_player_score += 1
+    scoring_player_id = g.black_player_id
+  if cx == other_tx and cy == other_ty:
+    g.board[cy][cx] = "CWCBT"
+    g.black_player_score += 1
+    scoring_player_id = g.black_player_id
+
+  # Update the board for the current player
+  if not g.board[ty][tx]:
+    g.board[ty][tx] = current_player_color_code + "T"
+  if not g.board[cy][cx]:
+    g.board[cy][cx] = current_player_color_code + "C"
+
+  # Was there a clash?
+  if scoring_player_id:
+    if g.white_player_score == WINNING_SCORE or g.black_player_score == WINNING_SCORE:
+      g.game_state = GameState.FINISHED.name
+      g.winner_id = scoring_player_id
+    else:
+      g.game_state = GameState.CLASH.name
+  return scoring_player_id
+
+
 def _handle_piece_move(user_input: UserInput, g: Game) -> GameResponse:
   """Resolves moving of the Kontranto pieces."""
   if not user_input.new_triangle_position or not user_input.new_circle_position:
@@ -158,24 +263,63 @@ def _handle_piece_move(user_input: UserInput, g: Game) -> GameResponse:
   else:
     return GameResponse.from_game(g).with_error("Invalid player")
 
+  # Check if the player hit the timeout
+  last_move = Move.objects.filter(game__exact=g).filter(player_id__exact=user_input.player_id).latest('move_timestamp')
+  if last_move and datetime.datetime.now() - last_move.move_timestamp > MAX_TIME_PER_MOVE:
+    g.game_state = GameState.FINISHED.name
+    g.winner_id = g.black_player_id if color == PlayerColor.WHITE else g.white_player_id
+    g.save()
+    return GameResponse.from_game(g)
+
+  color_code = "W" if color == PlayerColor.WHITE else "B"
+  tx, ty = user_input.new_triangle_position
+  cx, cy = user_input.new_circle_position
+
+  # Validate the move.
+  if tx == cx and ty == cy:
+    return GameResponse.from_game(g).with_error("Invalid position. Same-color figures overlap.")
+  if g.board[ty][tx] == "DF" or g.board[cy][cx] == "DF":
+    return GameResponse.from_game(g).with_error("Invalid position. Can't move to the destroyed field.")
+  # Validate the new position if this is not the first move
+  if last_move:
+    (old_tx, old_ty) = _find_board_field(g, color_code+"T")
+    (old_cx, old_cy) = _find_board_field(g, color_code+"C")
+    if abs(old_tx-tx) > 1 or abs(old_cx-cx) > 1 or abs(old_ty-ty) > 1 or abs(old_cy-cy) > 1:
+      return GameResponse.from_game(g).with_error("Invalid position. New position is too far.")
+
+  # Update the state & board
+  scoring_player_id = ''
   if g.game_state in [GameState.INITIAL_PLACEMENT.name, GameState.GAME_RUNNING.name, GameState.CLASH.name]:
     if user_input.player_id == g.player_1_id:
       g.game_state = GameState.WAITING_PLAYER_TWO_MOVE.name
     else:
       g.game_state = GameState.WAITING_PLAYER_ONE_MOVE.name
+    # Update the board. Prefix the content with N as it's not yet fully visible.
+    g.board[ty][tx] = "N" + color_code + "T"
+    g.board[cy][cx] = "N" + color_code + "C"
   elif g.game_state in [GameState.WAITING_PLAYER_ONE_MOVE.name, GameState.WAITING_PLAYER_TWO_MOVE.name]:
+    # Update the state (doesn't have to be final)
     g.game_state = GameState.GAME_RUNNING.name
 
-  color_code = "W" if color == PlayerColor.WHITE else "B"
-  tx, ty = user_input.new_triangle_position
-  g.board[ty][tx] = color_code + "T"
-  cx, cy = user_input.new_circle_position
-  g.board[cy][cx] = color_code + "C"
-  g.save()
-  # TODO is valid move
+    # Remove the old positions
+    _clear_board_field(g, "WT")
+    _clear_board_field(g, "WC")
+    _clear_board_field(g, "BT")
+    _clear_board_field(g, "BC")
+    scoring_player_id = _check_clash_and_update_game(g, color, (tx, ty), (cx, cy))
 
-  # TODO timeout
-  # TODO clash
+    # Active the shock field if needed
+    if not scoring_player_id and _can_visit_all_figures(g):
+      # TODO did we have 8 moves without score change
+      # TODO generate shock field and set state
+      pass
+
+  g.save()
+
+  # Add it to the move history
+  new_move = Move.objects.create(game=g, player_id = user_input.player_id, move_timestamp=datetime.datetime.now(), triangle_position=json.dumps([tx,ty]), circle_position=json.dumps([cx,cy]), scoring_player_id=scoring_player_id)
+  new_move.save()
+
   return GameResponse.from_game(g)
 
 
