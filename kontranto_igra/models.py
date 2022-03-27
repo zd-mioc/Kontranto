@@ -44,7 +44,9 @@ def default_board():
 
 
 class Game(models.Model):
-    game_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    game_id = models.UUIDField(primary_key=True,
+                               default=uuid.uuid4,
+                               editable=False)
     player_1_id = models.CharField(max_length=200)
     player_2_id = models.CharField(max_length=200, default="")
     player_1_color_choice = models.CharField(max_length=10, default="")
