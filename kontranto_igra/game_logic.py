@@ -2,6 +2,7 @@ import datetime
 import enum
 import json
 import logging
+import random
 
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Optional
@@ -16,6 +17,9 @@ MAX_TIME_PER_MOVE = datetime.timedelta(minutes=5)
 
 # The number of points to win the game
 WINNING_SCORE = 9
+
+# How many moves without score until triggering the shock field
+NUM_MOVES_UNTIL_SHOCK = 8
 
 
 class PlayerColor(enum.Enum):
@@ -280,6 +284,19 @@ def _check_clash_and_update_game(
     return scoring_player_id
 
 
+def _select_shock_field(g: Game) -> Tuple[int, int]:
+    """Returns randomly selected shock field (x,y)."""
+    valid_fields = []
+    for y, row in enumerate(g.board):
+        for x, field in enumerate(row):
+            if field == '':
+                valid_fields.append((x, y))
+    if not valid_fields:
+        logger.error("No valid shock field! Invalid state (bug)!")
+    # OK to crash, shouldn't happen.
+    return random.choice(valid_fields)
+
+
 def _handle_piece_move(user_input: UserInput, g: Game) -> GameResponse:
     """Resolves moving of the Kontranto pieces."""
     if not user_input.new_triangle_position or not user_input.new_circle_position:
@@ -362,12 +379,17 @@ def _handle_piece_move(user_input: UserInput, g: Game) -> GameResponse:
         scoring_player_id = _check_clash_and_update_game(
             g, color, (tx, ty), (cx, cy))
 
-        # Active the shock field if needed
+        # Activate the shock field if needed
         if not scoring_player_id and _can_visit_all_figures(g):
-            # TODO did we have 8 moves without score change
-            # TODO generate shock field and set state
-            pass
-
+            # Was there NUM_MOVES_UNTIL_SHOCK without score change
+            last_moves_for_shock = Move.objects.filter(game__exact=g).order_by(
+                '-move_timestamp')[:NUM_MOVES_UNTIL_SHOCK * 2 - 1]
+            active_shock_field = any(m.scoring_player_id != ''
+                                     for m in last_moves_for_shock)
+            if active_shock_field:
+                (sx, sy) = _select_shock_field(g)
+                g.board[sy][sx] = 'SF'
+                g.game_state = GameState.SHOCK_MOVE.name
     g.save()
 
     # Add it to the move history
@@ -417,10 +439,13 @@ def handle_game_action(user_input: UserInput) -> GameResponse:
     elif state == GameState.WAITING_PLAYER_TWO_MOVE:
         return _handle_piece_move(user_input, g)
     elif state == GameState.SHOCK_MOVE:
+        # TODO
         pass
     elif state == GameState.CLASH:
+        # TODO
         pass
     elif state == GameState.FINISHED:
+        # TODO
         pass
     else:
         return GameResponse(game_id=user_input.game_id).with_error(
